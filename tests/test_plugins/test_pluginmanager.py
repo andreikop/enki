@@ -65,17 +65,18 @@ class OnePluginPluginsPage(_BaseTestCase):
 
     def tearDown(self):
         self._deletePlugin()
-        super().tearDown()
+        #super().tearDown()
 
     def _deletePlugin(self, num=0):
         """Delete the testplugin directory, optional parameter for different naming
         """
-        dirpath = os.path.join(PLUGIN_DIR_PATH, 'testplugin%i' % num)
+        pluginname = 'testplugin%i' % num
+        dirpath = os.path.join(PLUGIN_DIR_PATH, pluginname)
         if os.path.isdir(dirpath):
             shutil.rmtree(dirpath)
         else:
-            print("Could not find module %s. Did not delete anything." %
-                  pluginEntry["modulename"])
+            print("Could not find module %s. Did not delete anything."
+                  % pluginname)
 
     def testOpenPage(self):
         """Test if information on Pluginspage with one plugin is present"""
@@ -94,11 +95,6 @@ class OnePluginPluginsPage(_BaseTestCase):
                 introLabel.text().find(PLUGIN_DIR_PATH),
                 -1)
             QTest.keyClick(dialog, Qt.Key_Enter)
-
-            # print(page.children()[0].children()[0].children()[0].children()[1].text())
-            # QTest.mouseClick(item, Qt.LeftButton)
-            # print(dir(page))
-            # print(dir (item))
 
         self.openSettings(continueFunc)
 
@@ -136,46 +132,36 @@ class OnePluginPluginsPage(_BaseTestCase):
             QTest.keyClick(dialog, Qt.Key_Escape)
         self.openSettings(continueFunc)
 
-    # def testPluginDelete(self):
-#     Unfortunately the testPluginDelete produces the following Traceback (most recent call last):
-#   File "/home/macco/Listings/enki/tests/test_plugins/../base.py", line 215, in blockingFunc
-#     core.term()
-#   File "/home/macco/Listings/enki/tests/../enki/core/core.py", line 151, in term
-#     plugin.terminate()
-#   File "/home/macco/Listings/enki/tests/../enki/plugins/workspace_commands.py", line 315, in terminate
-#     core.locator().removeCommandClass(cmdClass)
-#   File "/home/macco/Listings/enki/tests/../enki/core/locator.py", line 635, in removeCommandClass
-#     self._commandClasses.remove(commandClass)
-# ValueError: list.remove(x): x not in list
-    #     """Test if the plugin get's unloaded after the user clicks on
-    #     the Delete button of the test plugin and deleted."""
-    #     def continueFunc(dialog):
-    #         page = dialog._pageForItem["Plugins"]
-    #         item = dialog._itemByPath(["Plugins"])
-    #         item.setSelected(True)
-    #         titleCard = \
-    #             page.children()[0].children()[0].children()[0].children()[2]
-    #         enableBtn = titleCard.children()[2].children()[2].buttons()[0]
-    #         uninstallBtn = titleCard.children()[2].children()[2].buttons()[1]
-    #         cancelButton = dialog.children()[3].children()[2]
-    #
-    #         QTest.mouseClick(enableBtn, Qt.LeftButton)
-    #         lenBeforeDelete = len(core.loadedPlugins())
-    #         titleCard._uninstallPlugin()
-    #         self.assertEqual(lenBeforeDelete - 1, len(core.loadedPlugins()),
-    #             'Plugins should be one fewer after uninstall.')
-    #         self.assertFalse(titleCard._pluginEntry['isLoaded'],
-    #             'Plugin should not be loaded anymore')
-    #         name = titleCard._pluginEntry['modulename']
-    #         self.assertFalse(
-    #             core.config()["PluginManager"]["Plugins"][name]["Enabled"],
-    #             'Plugin should not be enabled in enki config')
-    #         dirpath = os.path.join(PLUGIN_DIR_PATH, 'testplugin0')
-    #         self.assertFalse(os.path.exists(dirpath),
-    #             'Plugin directory should not exist')
-    #         QTest.mouseClick(cancelButton, Qt.LeftButton)
-    #
-    #     self.openSettings(continueFunc)
+    def testPluginDelete(self):
+        """Test if the plugin get's unloaded after the user clicks on
+        the Delete button of the test plugin and deleted."""
+        def continueFunc(dialog):
+            page = dialog._pageForItem["Plugins"]
+            item = dialog._itemByPath(["Plugins"])
+            item.setSelected(True)
+            titleCard = \
+                page.children()[0].children()[0].children()[0].children()[2]
+            enableBtn = titleCard.children()[2].children()[2].buttons()[0]
+            uninstallBtn = titleCard.children()[2].children()[2].buttons()[1]
+            cancelButton = dialog.children()[3].children()[2]
+
+            QTest.mouseClick(enableBtn, Qt.LeftButton)
+            lenBeforeDelete = len(core.loadedPlugins())
+            titleCard._uninstallPlugin()
+            self.assertEqual(lenBeforeDelete - 1, len(core.loadedPlugins()),
+                'Plugins should be one fewer after uninstall.')
+            self.assertFalse(titleCard._pluginEntry['isLoaded'],
+                'Plugin should not be loaded anymore')
+            name = titleCard._pluginEntry['modulename']
+            self.assertFalse(
+                core.config()["PluginManager"]["Plugins"][name]["Enabled"],
+                'Plugin should not be enabled in enki config')
+            dirpath = os.path.join(PLUGIN_DIR_PATH, 'testplugin0')
+            self.assertFalse(os.path.exists(dirpath),
+                'Plugin directory should not exist')
+            QTest.mouseClick(cancelButton, Qt.LeftButton)
+
+        self.openSettings(continueFunc)
 
 
 _FILETEXT = """
