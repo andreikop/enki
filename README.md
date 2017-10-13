@@ -28,7 +28,7 @@ Optional:
 #### Debian and Debian based
 
 ```
-   apt-get install python3 libqt5svg5 python3-pyqt5 python3-markdown python3-docutils ctags
+   apt-get install python3 libqt5svg5 python3-pyqt5 python3-pyqt5.qtwebengine python3-qtconsole python3-markdown python3-docutils ctags
    pip3 install -r requirements.txt
 ```
 
