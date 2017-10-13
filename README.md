@@ -30,7 +30,9 @@ Optional:
 ```
    apt-get install python3 libqt5svg5 python3-pyqt5 python3-pyqt5.qtwebengine python3-qtconsole python3-markdown python3-docutils ctags
    pip3 install -r requirements.txt
+
 ```
+   *If your repo doesn't contain **python3-pyqt5.qtwebengine**, remove **python3-pyqt5**, **python3-sip**, and do* `pip3 install PyQt5`
 
 Install Qutepart from [sources](https://github.com/hlamer/qutepart).
 #### Other Unixes
