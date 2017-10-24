@@ -7,6 +7,9 @@ from enki.core.core import core
 
 import enki.widgets.dockwidget
 
+__pluginname__ = "Hello World"
+__author__ = "Hello Author"
+__version__ = "0.0.1"
 
 class MyDock(enki.widgets.dockwidget.DockWidget):
 
