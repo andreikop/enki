@@ -18,12 +18,56 @@ from enki.core.core import core
 from enki.core.defines import CONFIG_DIR
 
 PLUGIN_DIR_PATH = os.path.join(CONFIG_DIR, 'userplugins')
+_FILETEXT = """
+\"\"\"Docstring of Testplugin\"\"\"
+__author__ = "Test Author"
+__pluginname__ = "Testplugin"
+__copyright__ = "Copyright Yoar"
+__credits__ = ["Test Author", "Test Author1", "Test Author2"]
+__license__ = "GPL3"
+__version__ = "0.0.0"
+__maintainer__ = "Test Maintainer"
+__email__ = "test@test.com"
+__status__ = "Testing"
 
+class Plugin:
+    def __init__(self):
+        pass
+    def terminate(self):
+        pass
+"""
+_EMPTY_FILETEXT = """"""
 
 class _BaseTestCase(base.TestCase):
 
     def setUp(self):
         super().setUp()
+
+
+class WrongPluginPluginsPage(_BaseTestCase):
+    """Test the PluginsPage if plugins really suffies the requirements in the userplugins directory."""
+
+    def setUp(self):
+        super().setUp()
+
+    def tearDown(self):
+        deletePlugin()
+        # super().tearDown() - otherwise we get an ValueError in core.term()
+
+    def testIfPluginIsNotLoaded(self):
+        """Test if plugin get's not loaded if it is copied to
+        ~/.config/enki/userplugins after the enki is started"""
+        pluginmanager = get_pluginmanager()
+        pluginCountBefore = len(pluginmanager._userPlugins)
+        createPlugin(filetext=_EMPTY_FILETEXT)
+        
+        def continueFunc(dialog):
+            page = dialog._pageForItem["Plugins"]
+            QTest.keyClick(dialog, Qt.Key_Enter)
+        self.openSettings(continueFunc)
+        
+        pluginCountAfter = len(pluginmanager._userPlugins)
+        self.assertEqual(pluginCountBefore, pluginCountAfter)
 
 
 class EmptyPluginsPage(_BaseTestCase):
@@ -177,7 +221,12 @@ class TwoPluginPluginsPage(_BaseTestCase):
         self.openSettings(continueFunc)
 
 
-def createPlugin(num=0):
+def get_pluginmanager():
+    for plugin in core.loadedPlugins():
+        if "pluginmanager" in str(plugin):
+            return plugin
+
+def createPlugin(num=0, filetext=_FILETEXT):
     """Delete the testplugin directory, optional parameter for different naming
     """
     dirpath = os.path.join(PLUGIN_DIR_PATH, 'testplugin%i' % num)
@@ -186,7 +235,7 @@ def createPlugin(num=0):
     if not os.path.exists(filepath):
         os.makedirs(dirpath)
     with codecs.open(filepath, 'wb', encoding='utf8') as file_:
-        file_.write(_FILETEXT)
+        file_.write(filetext)
 
 
 def deletePlugin(num=0):
@@ -199,26 +248,6 @@ def deletePlugin(num=0):
     else:
         print("Could not find module %s. Did not delete anything."
               % pluginname)
-
-
-_FILETEXT = """
-\"\"\"Docstring of Testplugin\"\"\"
-__author__ = "Test Author"
-__pluginname__ = "Testplugin"
-__copyright__ = "Copyright Yoar"
-__credits__ = ["Test Author", "Test Author1", "Test Author2"]
-__license__ = "GPL3"
-__version__ = "0.0.0"
-__maintainer__ = "Test Maintainer"
-__email__ = "test@test.com"
-__status__ = "Testing"
-
-class Plugin:
-    def __init__(self):
-        pass
-    def terminate(self):
-        pass
-"""
 
 
 if __name__ == '__main__':

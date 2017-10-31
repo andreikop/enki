@@ -59,7 +59,9 @@ class Plugin:
         userPlugins = userPluginsInit
         for loader, name, isPackage in pkgutil.iter_modules([PLUGIN_DIR_PATH]):
             if not inUserPlugins(name, userPlugins):
-                userPlugins.append(self._initPlugin(name))
+                userPlugin = self._initPlugin(name)
+                if userPlugin:
+                    userPlugins.append(userPlugin)
         return userPlugins
 
     def _initPlugin(self, name):
@@ -67,16 +69,20 @@ class Plugin:
         returns userpluginEntry
         """
         module = importlib.import_module('userplugins.%s' % name)
-        pluginEntry = create_UE(
-            module,
-            self._shouldPluginLoad(name),
-            name,
-            module.__pluginname__,
-            module.__author__,
-            module.__version__,
-            module.__doc__)
-        loadPlugin(pluginEntry)
-        return pluginEntry
+        try:
+            pluginEntry = create_UE(
+                module,
+                self._shouldPluginLoad(name),
+                name,
+                module.__pluginname__,
+                module.__author__,
+                module.__version__,
+                module.__doc__)
+            loadPlugin(pluginEntry)
+            return pluginEntry
+        except AttributeError:
+            logging.exception("Plugin %s misses required attributes." % name)
+            return False
 
     def _shouldPluginLoad(self, name):
         """Consumes a name of a plugin and checks in the settings of it should
