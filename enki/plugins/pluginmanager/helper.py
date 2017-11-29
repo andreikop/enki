@@ -2,8 +2,11 @@
 
 import os
 import shutil
+import urllib.request
+import json
+
 from enki.core.core import core
-from .constants import PLUGIN_DIR_PATH
+from .constants import PLUGIN_DIR_PATH, REPO
 
 # Data Definitions
 # ==================
@@ -82,3 +85,20 @@ def inUserPlugins(modulename, lope):
         if pluginEntry["modulename"] == modulename:
             return True
     return False
+
+def isPluginInstalled(name, lope):
+    """String ListOfUserpluginEntry -> Bool
+    Consumes a plugin name and a list of pluginEntrys
+    returns the plugin if ListOfUserpluginEntry has PluginEntry with plugin name
+    """
+    for pluginEntry in lope:
+        if pluginEntry["pluginname"] == name:
+            return pluginEntry
+    return False
+
+def getRepo():
+    url = urllib.request.urlopen(REPO)
+    rawData = url.read().decode()
+    repo = json.loads(rawData)
+    print(repo)
+    return repo

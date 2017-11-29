@@ -28,9 +28,10 @@ from PyQt5.QtGui import QIcon
 from enki.core.core import core
 from enki.core.defines import CONFIG_DIR
 
-from .constants import PLUGIN_DIR_PATH, ICON_PATH
-from .helper import create_UE, loadPlugin, inUserPlugins
+from .constants import PLUGIN_DIR_PATH, PLUGINS_ICON_PATH, INSTALL_ICON_PATH
+from .helper import create_UE, loadPlugin, inUserPlugins, getRepo
 from .pluginspage import PluginsPage
+from .installpage import InstallPage
 
 
 class Plugin:
@@ -112,11 +113,17 @@ class Plugin:
         """UI settings dialogue is about to execute.
         """
         self._initPlugins(self._userPlugins)
+        repo = getRepo()
         pluginsPage = PluginsPage(dialog, self._userPlugins)
+        installPage = InstallPage(dialog, self._userPlugins, repo)
         dialog.appendPage(
             u"Plugins",
             pluginsPage,
-            QIcon.fromTheme("preferences-plugin", QIcon(ICON_PATH)))
+            QIcon.fromTheme("preferences-plugin", QIcon(PLUGINS_ICON_PATH)))
+        dialog.appendPage(
+            u"Install",
+            installPage,
+            QIcon.fromTheme("document-new", QIcon(INSTALL_ICON_PATH)))
 
     def _onSettingsDialogAccepted(self):
         pass
