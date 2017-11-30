@@ -4,10 +4,10 @@ from PyQt5.QtWidgets import (QWidget, QHBoxLayout, QGroupBox, QStyle,
                              QVBoxLayout, QLabel, QDialogButtonBox,
                              QScrollArea, QMessageBox)
 from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QIcon
+from PyQt5.QtGui import QIcon, QMovie
 
 from enki.core.core import core
-from .constants import PLUGIN_DIR_PATH, DOWNLOAD_ICON_PATH
+from .constants import PLUGIN_DIR_PATH, DOWNLOAD_ICON_PATH, SPINNER_ICON_PATH
 from .helper import loadPlugin, unloadPlugin, deletePlugin, isPluginInstalled
 from .pluginspage import PluginTitlecard
 
@@ -90,12 +90,18 @@ class InstallableTitlecard(QGroupBox):
 
         self.setLayout(vbox)
 
-
     def _standardIconFromStyle(self, iconName):
         return self.style().standardIcon(getattr(QStyle, iconName))
 
     def _onInstallButtonClicked(self):
         print("Install Plugin")
+        self._spinner = QMovie(SPINNER_ICON_PATH)
+        self._spinner.frameChanged.connect(self._setInstallButtonIcon)
+        self._spinner.start()
+        self.installButton.setText("Installing...")
+
+    def _setInstallButtonIcon(self, frame):
+        self.installButton.setIcon(QIcon(self._spinner.currentPixmap()))
 
     def _enablePluginInConfig(self, name):
         """String -> Bool
