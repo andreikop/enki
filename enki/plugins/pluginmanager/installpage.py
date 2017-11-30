@@ -56,14 +56,19 @@ class InstallableTitlecard(QGroupBox):
         bottom_label.setMargin(0)
         bottom_label.setIndent(0)
         hbox.addWidget(bottom_label)
-        button_box = QDialogButtonBox(self)
 
+        moreInfoLabel = QLabel("<a href='%s'>Details</a>"
+                               % pluginEntry["details"])
+        moreInfoLabel.setOpenExternalLinks(True)
+        hbox.addWidget(moreInfoLabel)
+
+        button_box = QDialogButtonBox(self)
         self.installButton = button_box.addButton(
             'Install', QDialogButtonBox.DestructiveRole
         )
         self.installButton.setCheckable(True)
         self.installButton.clicked.connect(self._onInstallButtonClicked)
-        self.installButton.setIcon(QIcon.fromTheme("download",
+        self.installButton.setIcon(QIcon.fromTheme("run-install",
                                                    QIcon(DOWNLOAD_ICON_PATH)))
 
         hbox.addWidget(button_box)
