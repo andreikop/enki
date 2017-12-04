@@ -72,7 +72,7 @@ baseurl: .
 
         </div>
 
-        <a href="./packaging.html" id="where-is">Where is package for my OS?</a>
+        <a href="./packaging.html" id="where-is">Where is the package for my OS?</a>
 
     </div>
 
