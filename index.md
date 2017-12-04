@@ -17,7 +17,7 @@ baseurl: .
     <li><strong>Open source.</strong> Created, tested, and designed for the community, by the community, and with the community.</li>
 </ul>
 
-    <div id="social-buttons">
+<!--     <div id="social-buttons">
         <div id="twitter">
             <a href="https://twitter.com/EnkiEditor" class="twitter-follow-button" data-show-count="false" data-size="large" data-show-screen-name="false">Follow @EnkiEditor</a>
         </div>
@@ -28,7 +28,7 @@ baseurl: .
             </div>
         -->
     </div>
-
+ -->
 </div>
 
 <div id="content-row-2">
