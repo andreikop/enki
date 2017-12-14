@@ -29,7 +29,7 @@ from enki.core.core import core
 from enki.core.defines import CONFIG_DIR
 
 from .constants import PLUGIN_DIR_PATH, PLUGINS_ICON_PATH, INSTALL_ICON_PATH
-from .helper import create_UE, loadPlugin, inUserPlugins, getRepo
+from . import helper
 from .pluginspage import PluginsPage
 from .installpage import InstallPage
 
@@ -45,7 +45,7 @@ class Plugin:
         self._checkPaths()
         self._checkSettings()
 
-        self._userPlugins = self._initPlugins()
+        self._userPlugins = helper.initPlugins()
 
         core.uiSettingsManager().aboutToExecute.connect(
             self._onSettingsDialogAboutToExecute)
@@ -55,50 +55,8 @@ class Plugin:
         core.uiSettingsManager().aboutToExecute.disconnect(
             self._onSettingsDialogAboutToExecute)
 
-    def _initPlugins(self, userPluginsInit=[]):
-        """Loads all userplugins and returns them as a ListOfUserpluginEntry"""
-        userPlugins = userPluginsInit
-        for loader, name, isPackage in pkgutil.iter_modules([PLUGIN_DIR_PATH]):
-            if not inUserPlugins(name, userPlugins):
-                userPlugin = self._initPlugin(name)
-                if userPlugin:
-                    userPlugins.append(userPlugin)
-        return userPlugins
-
-    def _initPlugin(self, name):
-        """Load plugin by it's module name
-        returns userpluginEntry
-        """
-        module = importlib.import_module('userplugins.%s' % name)
-        try:
-            pluginEntry = create_UE(
-                module,
-                self._shouldPluginLoad(name),
-                name,
-                module.__pluginname__,
-                module.__author__,
-                module.__version__,
-                module.__doc__)
-            loadPlugin(pluginEntry)
-            return pluginEntry
-        except AttributeError:
-            logging.exception("Plugin %s misses required attributes." % name)
-            return False
-
-    def _shouldPluginLoad(self, name):
-        """Consumes a name of a plugin and checks in the settings of it should
-        be loaded.
-        If no setting is available for the plugin, it gets created.
-        Returns the setting (Bool)
-        """
-        if name not in core.config()["PluginManager"]["Plugins"]:
-            core.config()["PluginManager"]["Plugins"][name] = {}
-        if "Enabled" not in core.config()["PluginManager"]["Plugins"][name]:
-            core.config()["PluginManager"]["Plugins"][name]["Enabled"] = False
-        return core.config()["PluginManager"]["Plugins"][name]["Enabled"]
-
     def _checkPaths(self):
-        """Checks if all neccessary paths a present and if not
+        """Checks if all neccessary paths are present and if not
         creates them
         """
         initPath = os.path.join(PLUGIN_DIR_PATH, "__init__.py")
@@ -112,8 +70,8 @@ class Plugin:
     def _onSettingsDialogAboutToExecute(self, dialog):
         """UI settings dialogue is about to execute.
         """
-        self._initPlugins(self._userPlugins)
-        repo = getRepo()
+        helper.initPlugins(self._userPlugins)
+        repo = helper.getRepo()
         pluginsPage = PluginsPage(dialog, self._userPlugins)
         installPage = InstallPage(dialog, self._userPlugins, repo)
         dialog.appendPage(

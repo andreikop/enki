@@ -6,6 +6,8 @@ import urllib.request
 import json
 import zipfile
 import uuid
+import pkgutil
+import importlib
 
 from enki.core.core import core
 from .constants import PLUGIN_DIR_PATH, REPO, TMP
@@ -142,3 +144,45 @@ def renamePluginFolder(oldName, newName):
     else:
         print("Plugin directory renamed to %s." % newName)
         return True
+
+def initPlugins(userPluginsInit=[]):
+    """Loads all userplugins and returns them as a ListOfUserpluginEntry"""
+    userPlugins = userPluginsInit
+    for loader, name, isPackage in pkgutil.iter_modules([PLUGIN_DIR_PATH]):
+        if not inUserPlugins(name, userPlugins):
+            userPlugin = initPlugin(name)
+            if userPlugin:
+                userPlugins.append(userPlugin)
+    return userPlugins
+
+def initPlugin(name):
+    """Load plugin by it's module name
+    returns userpluginEntry
+    """
+    module = importlib.import_module('userplugins.%s' % name)
+    try:
+        pluginEntry = create_UE(
+            module,
+            shouldPluginLoad(name),
+            name,
+            module.__pluginname__,
+            module.__author__,
+            module.__version__,
+            module.__doc__)
+        loadPlugin(pluginEntry)
+        return pluginEntry
+    except AttributeError:
+        logging.exception("Plugin %s misses required attributes." % name)
+        return False
+
+def shouldPluginLoad(name):
+    """Consumes a name of a plugin and checks in the settings if it should
+    be loaded.
+    If no setting is available for the plugin, it gets created.
+    Returns the setting (Bool)
+    """
+    if name not in core.config()["PluginManager"]["Plugins"]:
+        core.config()["PluginManager"]["Plugins"][name] = {}
+    if "Enabled" not in core.config()["PluginManager"]["Plugins"][name]:
+        core.config()["PluginManager"]["Plugins"][name]["Enabled"] = False
+    return core.config()["PluginManager"]["Plugins"][name]["Enabled"]
