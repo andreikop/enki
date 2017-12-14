@@ -3,13 +3,15 @@
 from PyQt5.QtWidgets import (QWidget, QHBoxLayout, QGroupBox, QStyle,
                              QVBoxLayout, QLabel, QDialogButtonBox,
                              QScrollArea, QMessageBox)
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, QFile, QUrl, QIODevice
 from PyQt5.QtGui import QIcon, QMovie
+from PyQt5.QtNetwork import QNetworkRequest, QNetworkAccessManager
 
 from enki.core.core import core
-from .constants import PLUGIN_DIR_PATH, DOWNLOAD_ICON_PATH, SPINNER_ICON_PATH
-from .helper import loadPlugin, unloadPlugin, deletePlugin, isPluginInstalled
-from .pluginspage import PluginTitlecard
+
+from .constants import (PLUGIN_DIR_PATH, DOWNLOAD_ICON_PATH, SPINNER_ICON_PATH,
+                        TMP)
+from . import helper, pluginspage
 
 
 class InstallPage(QWidget):
@@ -34,9 +36,9 @@ class InstallPage(QWidget):
         vbox.addWidget(QLabel(
             """<h2>Install Plugins</h2>"""))
         for entry in repo["plugins"]:
-            isInstalled = isPluginInstalled(entry["name"], self._userPlugins)
+            isInstalled = helper.isPluginInstalled(entry["name"], self._userPlugins)
             if isInstalled:
-                vbox.addWidget(PluginTitlecard(isInstalled))
+                vbox.addWidget(pluginspage.PluginTitlecard(isInstalled))
             else:
                 vbox.addWidget(InstallableTitlecard(entry))
         vbox.addStretch(1)
@@ -49,6 +51,8 @@ class InstallableTitlecard(QGroupBox):
         self._pluginEntry = pluginEntry
         # Should be set to 150, when there a some kind of info link / button.
         self.setMaximumHeight(300)
+        self._networkManager = QNetworkAccessManager()
+        self._networkManager.finished.connect(self._onDownloadFinished)
 
         bottom = QWidget()
         hbox = QHBoxLayout()
@@ -93,13 +97,6 @@ class InstallableTitlecard(QGroupBox):
     def _standardIconFromStyle(self, iconName):
         return self.style().standardIcon(getattr(QStyle, iconName))
 
-    def _onInstallButtonClicked(self):
-        print("Install Plugin")
-        self._spinner = QMovie(SPINNER_ICON_PATH)
-        self._spinner.frameChanged.connect(self._setInstallButtonIcon)
-        self._spinner.start()
-        self.installButton.setText("Installing...")
-
     def _setInstallButtonIcon(self, frame):
         self.installButton.setIcon(QIcon(self._spinner.currentPixmap()))
 
@@ -123,3 +120,46 @@ class InstallableTitlecard(QGroupBox):
             core.config()["PluginManager"]["Plugins"][name] = {}
         core.config()["PluginManager"]["Plugins"][name]["Enabled"] = state
         return core.config()["PluginManager"]["Plugins"][name]["Enabled"]
+
+    def _onDownloadFinished(self, reply):
+        if reply.error():
+            print("Failed to download")
+        else:
+            zipFile = QFile("/tmp/enkiplugin_zipfile.zip")
+            zipFile.open(QIODevice.WriteOnly)
+            zipFile.write(reply.readAll())
+            zipFile.close()
+            print("Download Succes")
+            # DONE unzip file to userPlugins
+            # DONE rename folder to name Without version number
+        reply.deleteLater()
+
+    def _onInstallButtonClicked(self):
+        print("Install Plugin")
+        self._spinner = QMovie(SPINNER_ICON_PATH)
+        self._spinner.frameChanged.connect(self._setInstallButtonIcon)
+        self._spinner.start()
+        self.installButton.setText("Installing...")
+        self.installButton.setDisabled(True)
+
+        url = self._pluginEntry["download"]
+        print(url)
+        downloadPath = helper.downloadPlugin(url)
+        if downloadPath:
+            self._onDownloadSuccess(downloadPath)
+        else:
+            self._onDownloadFailed()
+
+    def _onDownloadSuccess(self, downloadPath):
+        helper.extractPlugin(downloadPath)
+        # DONE rename folder to name Without version number
+        newFolderName = self._pluginEntry["details"].split("/")[-1]
+        oldFolderName = newFolderName + "-" + self._pluginEntry["version"]
+        helper.renamePluginFolder(oldFolderName, newFolderName)
+        # TODO load plugin
+        pass
+
+    def _onDownloadFailed(self):
+        # TODO Change button back to install icon
+        # TODO message that download failed
+        pass

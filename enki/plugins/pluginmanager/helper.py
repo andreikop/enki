@@ -4,9 +4,11 @@ import os
 import shutil
 import urllib.request
 import json
+import zipfile
+import uuid
 
 from enki.core.core import core
-from .constants import PLUGIN_DIR_PATH, REPO
+from .constants import PLUGIN_DIR_PATH, REPO, TMP
 
 # Data Definitions
 # ==================
@@ -102,3 +104,41 @@ def getRepo():
     repo = json.loads(rawData)
     print(repo)
     return repo
+
+def downloadPlugin(url):
+    tmpName = str(uuid.uuid4()) + ".zip"
+    tmpPath = os.path.join(TMP, tmpName)
+    try:
+        request = urllib.request.urlretrieve(url, tmpPath)
+        print(request)
+    except ContentTooShortError as e:
+        print("The download could not finish.")
+        return False
+    else:
+        print("The plugin has been downloaded")
+        return tmpPath
+
+def extractPlugin(filePath):
+    try:
+        zipref = zipfile.ZipFile(filePath, 'r')
+        zipref.extractall(PLUGIN_DIR_PATH)
+        zipref.close()
+    except:
+        print("Could not extract plugin")
+        return False
+    else:
+        print("Plugin extracted")
+        os.remove(filePath)
+        print("Plugin deleted")
+        return True
+
+def renamePluginFolder(oldName, newName):
+    try:
+        os.rename(os.path.join(PLUGIN_DIR_PATH, oldName),
+        os.path.join(PLUGIN_DIR_PATH, newName))
+    except Exception as e:
+        print("Could not rename plugin directory")
+        return False
+    else:
+        print("Plugin directory renamed to %s." % newName)
+        return True

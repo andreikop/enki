@@ -16,3 +16,4 @@ DOWNLOAD_ICON_PATH = os.path.join(os.path.dirname(
 SPINNER_ICON_PATH = os.path.join(os.path.dirname(
     os.path.abspath(__file__)), 'spinner.gif')
 REPO = "https://raw.githubusercontent.com/rockiger/enki-plugin-repository/master/repository.json"
+TMP = "/tmp" #TODO make platformindependent
