@@ -16,9 +16,9 @@ from . import helper, pluginspage
 
 class InstallPage(QWidget):
     """Settings page for the installed plugins"""
-    def __init__(self, parent, userPlugins, repo):
+    def __init__(self, parent, repo):
         QWidget.__init__(self, parent)
-        self._userPlugins = userPlugins
+        self._userPlugins = helper.getPlugins()
         self._repo = repo
 
         # Add a scrollArea that if they are more plugins that fit into the
@@ -33,16 +33,24 @@ class InstallPage(QWidget):
         baseLayout.addWidget(scrollArea)
 
         self._vbox = QVBoxLayout()
+        self._vbox.addStretch(1)
+        baseWidget.setLayout(self._vbox)
+
+    def update(self, userPlugins):
+        for i in reversed(range(self._vbox.count())):
+            try:
+                self._vbox.itemAt(i).widget().setParent(None)
+            except AttributeError as e:
+                print ("Can't call setParent of None type")
+
         self._vbox.addWidget(QLabel(
             """<h2>Install Plugins</h2>"""))
-        for entry in repo["plugins"]:
-            isInstalled = helper.isPluginInstalled(entry["name"], self._userPlugins)
+        for entry in self._repo["plugins"]:
+            isInstalled = helper.isPluginInstalled(entry["name"], userPlugins)
             if isInstalled:
                 self._vbox.addWidget(pluginspage.PluginTitlecard(isInstalled))
             else:
                 self._vbox.addWidget(InstallableTitlecard(entry, self))
-        self._vbox.addStretch(1)
-        baseWidget.setLayout(self._vbox)
 
     def addPluginToUserPlugins(self, installableTitlecard):
         index = self._vbox.indexOf(installableTitlecard)

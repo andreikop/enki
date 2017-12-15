@@ -145,6 +145,35 @@ def renamePluginFolder(oldName, newName):
         print("Plugin directory renamed to %s." % newName)
         return True
 
+def getPlugins():
+    """Loads all userplugins and returns them as a ListOfUserpluginEntry"""
+    userPlugins = []
+    for loader, name, isPackage in pkgutil.iter_modules([PLUGIN_DIR_PATH]):
+        if not inUserPlugins(name, userPlugins):
+            userPlugin = getPlugin(name)
+            if userPlugin:
+                userPlugins.append(userPlugin)
+    return userPlugins
+
+def getPlugin(name):
+    """Load plugin by it's module name
+    returns userpluginEntry
+    """
+    module = importlib.import_module('userplugins.%s' % name)
+    try:
+        pluginEntry = create_UE(
+            module,
+            shouldPluginLoad(name),
+            name,
+            module.__pluginname__,
+            module.__author__,
+            module.__version__,
+            module.__doc__)
+        return pluginEntry
+    except AttributeError:
+        logging.exception("Plugin %s misses required attributes." % name)
+        return False
+
 def initPlugins(userPluginsInit=[]):
     """Loads all userplugins and returns them as a ListOfUserpluginEntry"""
     userPlugins = userPluginsInit

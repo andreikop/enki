@@ -41,11 +41,10 @@ class Plugin:
     """
     def __init__(self):
         """Setup settings and activate plugin, if feasable."""
-        self._userPlugins = []  # of type ListOfUserpluginEntry
+        #self._userPlugins = []  # of type ListOfUserpluginEntry
         self._checkPaths()
         self._checkSettings()
-
-        self._userPlugins = helper.initPlugins()
+        helper.initPlugins()
 
         core.uiSettingsManager().aboutToExecute.connect(
             self._onSettingsDialogAboutToExecute)
@@ -70,18 +69,32 @@ class Plugin:
     def _onSettingsDialogAboutToExecute(self, dialog):
         """UI settings dialogue is about to execute.
         """
-        helper.initPlugins(self._userPlugins)
         repo = helper.getRepo()
-        pluginsPage = PluginsPage(dialog, self._userPlugins)
-        installPage = InstallPage(dialog, self._userPlugins, repo)
+        self._pluginsPage = PluginsPage(dialog)
+        self._installPage = InstallPage(dialog, repo)
         dialog.appendPage(
             u"Plugins",
-            pluginsPage,
+            self._pluginsPage,
             QIcon.fromTheme("preferences-plugin", QIcon(PLUGINS_ICON_PATH)))
         dialog.appendPage(
             u"Install",
-            installPage,
+            self._installPage,
             QIcon.fromTheme("document-new", QIcon(INSTALL_ICON_PATH)))
+
+        self._twMenu = dialog.twMenu
+        self._twMenu.itemSelectionChanged.connect(self._onItemSelectionChanged)
+
+    def _onItemActivated(self, item, column):
+        print(item)
+
+    def _onItemSelectionChanged(self):
+        itemText = self._twMenu.selectedItems()[0].text(0)
+        if itemText == "Plugins":
+            print("update pluginspage")
+            self._pluginsPage.update(helper.getPlugins())
+        elif itemText == "Install":
+            print("update installpage")
+            self._installPage.update(helper.getPlugins())
 
     def _onSettingsDialogAccepted(self):
         pass

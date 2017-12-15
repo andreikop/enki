@@ -11,9 +11,8 @@ from .helper import loadPlugin, unloadPlugin, deletePlugin
 
 class PluginsPage(QWidget):
     """Settings page for the installed plugins"""
-    def __init__(self, parent, userPlugins):
+    def __init__(self, parent):
         QWidget.__init__(self, parent)
-        self._userPlugins = userPlugins
 
         # Add a scrollArea that if they are more plugins that fit into the
         # settings page
@@ -26,15 +25,23 @@ class PluginsPage(QWidget):
         scrollArea.setWidget(baseWidget)
         baseLayout.addWidget(scrollArea)
 
-        vbox = QVBoxLayout()
-        vbox.addWidget(QLabel(
+        self._vbox = QVBoxLayout()
+        self._vbox.addStretch(1)
+        baseWidget.setLayout(self._vbox)
+
+    def update(self, userPlugins):
+        for i in reversed(range(self._vbox.count())):
+            try:
+                self._vbox.itemAt(i).widget().setParent(None)
+            except AttributeError as e:
+                print ("Can't call setParent of None type")
+
+        self._vbox.addWidget(QLabel(
             """<h2>Installed Plugins: <code>%i</code></h2>
             <p>Add plugins by putting them into <code>%s</code></p>
             <p><\p>""" % (len(userPlugins), PLUGIN_DIR_PATH)))
         for entry in userPlugins:
-            vbox.addWidget(PluginTitlecard(entry))
-        vbox.addStretch(1)
-        baseWidget.setLayout(vbox)
+            self._vbox.addWidget(PluginTitlecard(entry))
 
 
 class PluginTitlecard(QGroupBox):
