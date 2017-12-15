@@ -156,8 +156,7 @@ def getPlugins():
     return userPlugins
 
 def getPlugin(name):
-    """Load plugin by it's module name
-    returns userpluginEntry
+    """ get plugin by it's module name and returns userpluginEntry
     """
     module = importlib.import_module('userplugins.%s' % name)
     try:
@@ -174,35 +173,18 @@ def getPlugin(name):
         logging.exception("Plugin %s misses required attributes." % name)
         return False
 
-def initPlugins(userPluginsInit=[]):
+def initPlugins():
     """Loads all userplugins and returns them as a ListOfUserpluginEntry"""
-    userPlugins = userPluginsInit
-    for loader, name, isPackage in pkgutil.iter_modules([PLUGIN_DIR_PATH]):
-        if not inUserPlugins(name, userPlugins):
-            userPlugin = initPlugin(name)
-            if userPlugin:
-                userPlugins.append(userPlugin)
+    userPlugins = getPlugins()
+    for up in userPlugins:
+        loadPlugin(up)
     return userPlugins
 
 def initPlugin(name):
     """Load plugin by it's module name
     returns userpluginEntry
     """
-    module = importlib.import_module('userplugins.%s' % name)
-    try:
-        pluginEntry = create_UE(
-            module,
-            shouldPluginLoad(name),
-            name,
-            module.__pluginname__,
-            module.__author__,
-            module.__version__,
-            module.__doc__)
-        loadPlugin(pluginEntry)
-        return pluginEntry
-    except AttributeError:
-        logging.exception("Plugin %s misses required attributes." % name)
-        return False
+    return loadPlugin(getPlugin(name))
 
 def shouldPluginLoad(name):
     """Consumes a name of a plugin and checks in the settings if it should
