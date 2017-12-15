@@ -32,22 +32,32 @@ class InstallPage(QWidget):
         scrollArea.setWidget(baseWidget)
         baseLayout.addWidget(scrollArea)
 
-        vbox = QVBoxLayout()
-        vbox.addWidget(QLabel(
+        self._vbox = QVBoxLayout()
+        self._vbox.addWidget(QLabel(
             """<h2>Install Plugins</h2>"""))
         for entry in repo["plugins"]:
             isInstalled = helper.isPluginInstalled(entry["name"], self._userPlugins)
             if isInstalled:
-                vbox.addWidget(pluginspage.PluginTitlecard(isInstalled))
+                self._vbox.addWidget(pluginspage.PluginTitlecard(isInstalled))
             else:
-                vbox.addWidget(InstallableTitlecard(entry))
-        vbox.addStretch(1)
-        baseWidget.setLayout(vbox)
+                self._vbox.addWidget(InstallableTitlecard(entry, self))
+        self._vbox.addStretch(1)
+        baseWidget.setLayout(self._vbox)
 
+    def addPluginToUserPlugins(self, installableTitlecard):
+        index = self._vbox.indexOf(installableTitlecard)
+        name = installableTitlecard.name()
+        pluginEntry = helper.initPlugin(name)
+
+        if pluginEntry:
+            self._userPlugins.append(pluginEntry)
+            self._vbox.insertWidget(index,
+                                    pluginspage.PluginTitlecard(pluginEntry))
 
 class InstallableTitlecard(QGroupBox):
-    def __init__(self, pluginEntry):
+    def __init__(self, pluginEntry, parent):
         super().__init__()
+        self.__parent = parent
         self._pluginEntry = pluginEntry
         # Should be set to 150, when there a some kind of info link / button.
         self.setMaximumHeight(300)
@@ -153,13 +163,17 @@ class InstallableTitlecard(QGroupBox):
     def _onDownloadSuccess(self, downloadPath):
         helper.extractPlugin(downloadPath)
         # DONE rename folder to name Without version number
-        newFolderName = self._pluginEntry["details"].split("/")[-1]
+        newFolderName = self.name()
         oldFolderName = newFolderName + "-" + self._pluginEntry["version"]
         helper.renamePluginFolder(oldFolderName, newFolderName)
-        # TODO load plugin
-        pass
+        # DONE load plugin
+        self.__parent.addPluginToUserPlugins(self)
+        self.setParent(None)
 
     def _onDownloadFailed(self):
         # TODO Change button back to install icon
         # TODO message that download failed
         pass
+
+    def name(self):
+        return self._pluginEntry["details"].split("/")[-1]
