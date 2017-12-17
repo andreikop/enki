@@ -5,12 +5,12 @@ import shutil
 import urllib.request
 import json
 import zipfile
-import uuid
 import pkgutil
 import importlib
+import logging
 
 from enki.core.core import core
-from .constants import PLUGIN_DIR_PATH, REPO, TMP
+from .constants import PLUGIN_DIR_PATH, REPO
 
 # Data Definitions
 # ==================
@@ -90,43 +90,56 @@ def inUserPlugins(modulename, lope):
             return True
     return False
 
+
 def isPluginInstalled(name, lope):
     """String ListOfUserpluginEntry -> Bool
     Consumes a plugin name and a list of pluginEntrys
-    returns the plugin if ListOfUserpluginEntry has PluginEntry with plugin name
+    returns the plugin if ListOfUserpluginEntry has PluginEntry
+            with pluginname name
     """
     for pluginEntry in lope:
         if pluginEntry["pluginname"] == name:
             return pluginEntry
     return False
 
+
 def getRepo():
+    """Void -> Dictionary
+    Loads the repo from https://github.com/rockiger/enki-plugin-repository/
+    and returns it as a dictionary"""
     url = urllib.request.urlopen(REPO)
     rawData = url.read().decode()
     repo = json.loads(rawData)
     print(repo)
     return repo
 
-def downloadPlugin(url):
-    tmpName = str(uuid.uuid4()) + ".zip"
-    tmpPath = os.path.join(TMP, tmpName)
+
+def downloadPlugin(url, tmpPath):
+    """String String -> bool
+    Consumes the url of a plugin archive and the path to save it
+    return True if download succeeded, else False"""
     try:
         request = urllib.request.urlretrieve(url, tmpPath)
         print(request)
-    except ContentTooShortError as e:
+    except Exception as e:
         print("The download could not finish.")
         return False
     else:
         print("The plugin has been downloaded")
         return tmpPath
 
+
 def extractPlugin(filePath):
+    """String -> Bool
+    Consumes the filePath of a plugin archive and extracts it to the
+    userplugins-directory, return True if extract succeeded, els False"""
     try:
         zipref = zipfile.ZipFile(filePath, 'r')
         zipref.extractall(PLUGIN_DIR_PATH)
         zipref.close()
-    except:
+    except Exception as e:
         print("Could not extract plugin")
+        os.remove(filePath)
         return False
     else:
         print("Plugin extracted")
@@ -134,16 +147,21 @@ def extractPlugin(filePath):
         print("Plugin deleted")
         return True
 
+
 def renamePluginFolder(oldName, newName):
+    """String String -> Bool
+    Consumes the oldName and NewName of a plugin folder and renames it in the
+    userplugins-directory, return True if rename succeeded, else False"""
     try:
         os.rename(os.path.join(PLUGIN_DIR_PATH, oldName),
-        os.path.join(PLUGIN_DIR_PATH, newName))
+                  os.path.join(PLUGIN_DIR_PATH, newName))
     except Exception as e:
         print("Could not rename plugin directory")
         return False
     else:
         print("Plugin directory renamed to %s." % newName)
         return True
+
 
 def getPlugins():
     """Loads all userplugins and returns them as a ListOfUserpluginEntry"""
@@ -154,6 +172,7 @@ def getPlugins():
             if userPlugin:
                 userPlugins.append(userPlugin)
     return userPlugins
+
 
 def getPlugin(name):
     """ get plugin by it's module name and returns userpluginEntry
@@ -173,6 +192,7 @@ def getPlugin(name):
         logging.exception("Plugin %s misses required attributes." % name)
         return False
 
+
 def initPlugins():
     """Loads all userplugins and returns them as a ListOfUserpluginEntry"""
     userPlugins = getPlugins()
@@ -180,11 +200,13 @@ def initPlugins():
         loadPlugin(up)
     return userPlugins
 
+
 def initPlugin(name):
     """Load plugin by it's module name
     returns userpluginEntry
     """
     return loadPlugin(getPlugin(name))
+
 
 def shouldPluginLoad(name):
     """Consumes a name of a plugin and checks in the settings if it should

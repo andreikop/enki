@@ -30,11 +30,13 @@ class PluginsPage(QWidget):
         baseWidget.setLayout(self._vbox)
 
     def update(self, userPlugins):
+        """ListOfUserpluginEntry -> Void
+        Consume a list of UserpluginEntry and repopulates the plugins page"""
         for i in reversed(range(self._vbox.count())):
             try:
                 self._vbox.itemAt(i).widget().setParent(None)
             except AttributeError as e:
-                print ("Can't call setParent of None type")
+                print("Can't call setParent of None type")
 
         self._vbox.addWidget(QLabel(
             """<h2>Installed Plugins: <code>%i</code></h2>
@@ -99,7 +101,7 @@ class PluginTitlecard(QGroupBox):
             "Uninstall erases the %s plugin permanently from your disk."
             % self._pluginEntry["pluginname"],
             """Do you really want to delete the %s plugin from your disk.
-            have to reinstall it, if you want to use it again."""
+            You have to reinstall it, if you want to use it again."""
             % self._pluginEntry["pluginname"])
         msgBox.addButton("Uninstall", QMessageBox.AcceptRole)
         cancelButton = msgBox.addButton("Cancel", QMessageBox.RejectRole)

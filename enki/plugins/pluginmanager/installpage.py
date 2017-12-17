@@ -1,22 +1,26 @@
-"""The PluginsPage class"""
+"""The InstallPage"""
+
+import os
+import uuid
 
 from PyQt5.QtWidgets import (QWidget, QHBoxLayout, QGroupBox, QStyle,
                              QVBoxLayout, QLabel, QDialogButtonBox,
                              QScrollArea, QMessageBox)
-from PyQt5.QtCore import Qt, QFile, QUrl, QIODevice
+from PyQt5.QtCore import Qt, QThread, pyqtSignal
 from PyQt5.QtGui import QIcon, QMovie
-from PyQt5.QtNetwork import QNetworkRequest, QNetworkAccessManager
 
 from enki.core.core import core
 
-from .constants import (PLUGIN_DIR_PATH, DOWNLOAD_ICON_PATH, SPINNER_ICON_PATH,
-                        TMP)
+from .constants import DOWNLOAD_ICON_PATH, SPINNER_ICON_PATH, TMP
 from . import helper, pluginspage
 
 
 class InstallPage(QWidget):
     """Settings page for the installed plugins"""
     def __init__(self, parent, repo):
+        """QWidget Dictionary -> Void
+        Consumes the parent and the repository dictionary and sets up the
+        install page in the settings area"""
         QWidget.__init__(self, parent)
         self._userPlugins = helper.getPlugins()
         self._repo = repo
@@ -37,11 +41,13 @@ class InstallPage(QWidget):
         baseWidget.setLayout(self._vbox)
 
     def update(self, userPlugins):
+        """ListOfUserpluginEntry -> Void
+        Consume a list of UserpluginEntry and repopulates the install page"""
         for i in reversed(range(self._vbox.count())):
             try:
                 self._vbox.itemAt(i).widget().setParent(None)
             except AttributeError as e:
-                print ("Can't call setParent of None type")
+                print("Can't call setParent of None type")
 
         self._vbox.addWidget(QLabel(
             """<h2>Install Plugins</h2>"""))
@@ -53,8 +59,11 @@ class InstallPage(QWidget):
                 self._vbox.addWidget(InstallableTitlecard(entry, self))
 
     def addPluginToUserPlugins(self, installableTitlecard):
+        """InstallableTitlecard -> Void
+        Consumes an InstallableTitlecard and insert an PluginTitleCard instead
+        of itself"""
         index = self._vbox.indexOf(installableTitlecard)
-        name = installableTitlecard.name()
+        name = installableTitlecard.modulename()
         pluginEntry = helper.initPlugin(name)
 
         if pluginEntry:
@@ -62,15 +71,18 @@ class InstallPage(QWidget):
             self._vbox.insertWidget(index,
                                     pluginspage.PluginTitlecard(pluginEntry))
 
+
 class InstallableTitlecard(QGroupBox):
+    """An titlecard for the install page in the settings view"""
     def __init__(self, pluginEntry, parent):
+        """PluginEntry QWidget -> Void
+        Consumes a PluginEntry and the parent widget of the titlecard
+        sets up the titlecard to the pluginEntry"""
         super().__init__()
         self.__parent = parent
         self._pluginEntry = pluginEntry
         # Should be set to 150, when there a some kind of info link / button.
         self.setMaximumHeight(300)
-        self._networkManager = QNetworkAccessManager()
-        self._networkManager.finished.connect(self._onDownloadFinished)
 
         bottom = QWidget()
         hbox = QHBoxLayout()
@@ -113,9 +125,14 @@ class InstallableTitlecard(QGroupBox):
         self.setLayout(vbox)
 
     def _standardIconFromStyle(self, iconName):
+        """String -> QIcon
+        Consumes the iconName for a given standard icon
+        returns the corresponding icon on the current platform."""
         return self.style().standardIcon(getattr(QStyle, iconName))
 
     def _setInstallButtonIcon(self, frame):
+        """QFrame -> Void
+        Handles everey new frame in the spinner animation"""
         self.installButton.setIcon(QIcon(self._spinner.currentPixmap()))
 
     def _enablePluginInConfig(self, name):
@@ -139,39 +156,28 @@ class InstallableTitlecard(QGroupBox):
         core.config()["PluginManager"]["Plugins"][name]["Enabled"] = state
         return core.config()["PluginManager"]["Plugins"][name]["Enabled"]
 
-    def _onDownloadFinished(self, reply):
-        if reply.error():
-            print("Failed to download")
-        else:
-            zipFile = QFile("/tmp/enkiplugin_zipfile.zip")
-            zipFile.open(QIODevice.WriteOnly)
-            zipFile.write(reply.readAll())
-            zipFile.close()
-            print("Download Succes")
-            # DONE unzip file to userPlugins
-            # DONE rename folder to name Without version number
-        reply.deleteLater()
-
     def _onInstallButtonClicked(self):
-        print("Install Plugin")
+        """Handler for install button"""
+        url = self._pluginEntry["download"]
+        tmpName = str(uuid.uuid4()) + ".zip"
+        self._downloadPath = os.path.join(TMP, tmpName)
+
+        downloadThread = DownloadPluginThread(url, self._downloadPath)
+        downloadThread.success.connect(self._onDownloadSuccess)
+        downloadThread.failed.connect(self._onDownloadFailed)
+        downloadThread.start()
+
         self._spinner = QMovie(SPINNER_ICON_PATH)
         self._spinner.frameChanged.connect(self._setInstallButtonIcon)
         self._spinner.start()
         self.installButton.setText("Installing...")
         self.installButton.setDisabled(True)
 
-        url = self._pluginEntry["download"]
-        print(url)
-        downloadPath = helper.downloadPlugin(url)
-        if downloadPath:
-            self._onDownloadSuccess(downloadPath)
-        else:
-            self._onDownloadFailed()
-
-    def _onDownloadSuccess(self, downloadPath):
-        helper.extractPlugin(downloadPath)
+    def _onDownloadSuccess(self):
+        """Install plugin if download succeeded"""
+        helper.extractPlugin(self._downloadPath)
         # DONE rename folder to name Without version number
-        newFolderName = self.name()
+        newFolderName = self.modulename()
         oldFolderName = newFolderName + "-" + self._pluginEntry["version"]
         helper.renamePluginFolder(oldFolderName, newFolderName)
         # DONE load plugin
@@ -179,9 +185,42 @@ class InstallableTitlecard(QGroupBox):
         self.setParent(None)
 
     def _onDownloadFailed(self):
-        # TODO Change button back to install icon
-        # TODO message that download failed
-        pass
+        """Cleans up, if the download failed"""
+        self.installButton.setIcon(QIcon.fromTheme("run-install",
+                                                   QIcon(DOWNLOAD_ICON_PATH)))
+        QMessageBox(
+            QMessageBox.Warning,
+            "Could not install %s plugin."
+            % self._pluginEntry["pluginname"],
+            """The %s plugin could not be downloaded. Please
+            check your internet connection."""
+            % self._pluginEntry["pluginname"])
 
-    def name(self):
+    def modulename(self):
+        """Extracts the modulename detail url"""
         return self._pluginEntry["details"].split("/")[-1]
+
+
+class DownloadPluginThread(QThread):
+    """Downloads the plugin in it's own thread."""
+    success = pyqtSignal()
+    failed = pyqtSignal()
+
+    def __init__(self, url, tmpPath, parent=None):
+        """String String -> Void
+        Consumes the url to the plugin archive and the path where to download
+        the archive"""
+        super(DownloadPluginThread, self).__init__(parent)
+        self._url = url
+        self._tmpPath = tmpPath
+
+    def __del__(self):
+        self.wait()
+
+    def run(self):
+        """Download the plugin"""
+        isDownloadSuccessful = helper.downloadPlugin(self._url, self._tmpPath)
+        if isDownloadSuccessful:
+            self.success.emit()
+        else:
+            self.failed.emit()
