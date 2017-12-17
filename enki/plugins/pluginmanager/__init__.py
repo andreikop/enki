@@ -20,12 +20,10 @@ __email__ = "marco@rockiger.com"
 __status__ = "Beta"
 
 import os
-import pkgutil
 import sys
-import importlib
 
 from PyQt5.QtGui import QIcon
-from PyQt5.QtCore import qDebug
+from PyQt5.QtCore import qDebug, QThread, pyqtSignal
 
 from enki.core.core import core
 from enki.core.defines import CONFIG_DIR
@@ -43,13 +41,17 @@ class Plugin:
     """
     def __init__(self):
         """Setup settings and activate plugin, if feasable."""
-        #self._userPlugins = []  # of type ListOfUserpluginEntry
         self._checkPaths()
         self._checkSettings()
+        self._repo = None
         helper.initPlugins()
 
         core.uiSettingsManager().aboutToExecute.connect(
             self._onSettingsDialogAboutToExecute)
+
+        getRepoThread = GetRepoThread()
+        getRepoThread.success.connect(self._onSuccessGetRepo)
+        getRepoThread.start()
 
     def terminate(self):
         """clean up"""
@@ -71,9 +73,8 @@ class Plugin:
     def _onSettingsDialogAboutToExecute(self, dialog):
         """UI settings dialogue is about to execute.
         """
-        repo = helper.getRepo()
         self._pluginsPage = PluginsPage(dialog)
-        self._installPage = InstallPage(dialog, repo)
+        self._installPage = InstallPage(dialog, self._repo)
         dialog.appendPage(
             u"Plugins",
             self._pluginsPage,
@@ -109,3 +110,22 @@ class Plugin:
             core.config()["PluginManager"] = {}
         if "Plugins" not in core.config()["PluginManager"]:
             core.config()["PluginManager"]["Plugins"] = {}
+
+    def _onSuccessGetRepo(self, repo):
+        self._repo = repo
+
+
+class GetRepoThread(QThread):
+    """Download the pluginrepository in its own thread?"""
+
+    success = pyqtSignal(dict)
+
+    def __init__(self):
+        QThread.__init__(self)
+
+    def __del__(self):
+        self.wait()
+
+    def run(self):
+        repo = helper.getRepo()
+        self.success.emit(repo)
