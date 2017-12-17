@@ -76,7 +76,7 @@ def deletePlugin(pluginEntry):
     elif os.path.exists(filepath):
         os.remove(filepath)
     else:
-        print("Could not find module %s. Did not delete anything." %
+        logging.warning("Could not find module %s. Did not delete anything." %
               pluginEntry["modulename"])
 
 
@@ -110,7 +110,7 @@ def getRepo():
     url = urllib.request.urlopen(REPO)
     rawData = url.read().decode()
     repo = json.loads(rawData)
-    print(repo)
+    logging.debug(repo)
     return repo
 
 
@@ -120,12 +120,12 @@ def downloadPlugin(url, tmpPath):
     return True if download succeeded, else False"""
     try:
         request = urllib.request.urlretrieve(url, tmpPath)
-        print(request)
+        logging.debug(request)
     except Exception as e:
-        print("The download could not finish.")
+        logging.exception("The download could not finish.")
         return False
     else:
-        print("The plugin has been downloaded")
+        logging.info("The plugin has been downloaded")
         return tmpPath
 
 
@@ -138,13 +138,13 @@ def extractPlugin(filePath):
         zipref.extractall(PLUGIN_DIR_PATH)
         zipref.close()
     except Exception as e:
-        print("Could not extract plugin")
+        logging.exception("Could not extract plugin")
         os.remove(filePath)
         return False
     else:
-        print("Plugin extracted")
+        logging.info("Plugin extracted")
         os.remove(filePath)
-        print("Plugin deleted")
+        logging.info("Plugin deleted")
         return True
 
 
@@ -156,10 +156,10 @@ def renamePluginFolder(oldName, newName):
         os.rename(os.path.join(PLUGIN_DIR_PATH, oldName),
                   os.path.join(PLUGIN_DIR_PATH, newName))
     except Exception as e:
-        print("Could not rename plugin directory")
+        logging.exception("Could not rename plugin directory")
         return False
     else:
-        print("Plugin directory renamed to %s." % newName)
+        logging.info("Plugin directory renamed to %s." % newName)
         return True
 
 

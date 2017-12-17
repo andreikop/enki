@@ -23,7 +23,9 @@ import os
 import pkgutil
 import sys
 import importlib
+
 from PyQt5.QtGui import QIcon
+from PyQt5.QtCore import qDebug
 
 from enki.core.core import core
 from enki.core.defines import CONFIG_DIR
@@ -85,15 +87,15 @@ class Plugin:
         self._twMenu.itemSelectionChanged.connect(self._onItemSelectionChanged)
 
     def _onItemActivated(self, item, column):
-        print(item)
+        qDebug(item)
 
     def _onItemSelectionChanged(self):
         itemText = self._twMenu.selectedItems()[0].text(0)
         if itemText == "Plugins":
-            print("update pluginspage")
+            qDebug("update pluginspage")
             self._pluginsPage.update(helper.getPlugins())
         elif itemText == "Install":
-            print("update installpage")
+            qDebug("update installpage")
             self._installPage.update(helper.getPlugins())
 
     def _onSettingsDialogAccepted(self):

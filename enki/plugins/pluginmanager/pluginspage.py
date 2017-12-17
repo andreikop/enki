@@ -3,7 +3,7 @@
 from PyQt5.QtWidgets import (QWidget, QHBoxLayout, QGroupBox, QStyle,
                              QVBoxLayout, QLabel, QDialogButtonBox,
                              QScrollArea, QMessageBox)
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, qWarning
 from enki.core.core import core
 from .constants import PLUGIN_DIR_PATH
 from .helper import loadPlugin, unloadPlugin, deletePlugin
@@ -36,7 +36,7 @@ class PluginsPage(QWidget):
             try:
                 self._vbox.itemAt(i).widget().setParent(None)
             except AttributeError as e:
-                print("Can't call setParent of None type")
+                qWarning("Can't call setParent of None type")
 
         self._vbox.addWidget(QLabel(
             """<h2>Installed Plugins: <code>%i</code></h2>

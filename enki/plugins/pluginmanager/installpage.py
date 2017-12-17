@@ -6,7 +6,7 @@ import uuid
 from PyQt5.QtWidgets import (QWidget, QHBoxLayout, QGroupBox, QStyle,
                              QVBoxLayout, QLabel, QDialogButtonBox,
                              QScrollArea, QMessageBox)
-from PyQt5.QtCore import Qt, QThread, pyqtSignal
+from PyQt5.QtCore import Qt, QThread, pyqtSignal, qWarning
 from PyQt5.QtGui import QIcon, QMovie
 
 from enki.core.core import core
@@ -47,7 +47,7 @@ class InstallPage(QWidget):
             try:
                 self._vbox.itemAt(i).widget().setParent(None)
             except AttributeError as e:
-                print("Can't call setParent of None type")
+                qWarning("Can't call setParent of None type")
 
         self._vbox.addWidget(QLabel(
             """<h2>Install Plugins</h2>"""))
