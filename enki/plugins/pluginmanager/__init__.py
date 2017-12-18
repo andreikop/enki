@@ -20,17 +20,18 @@ __email__ = "marco@rockiger.com"
 __status__ = "Beta"
 
 import os
-import pkgutil
 import sys
-import importlib
+
 from PyQt5.QtGui import QIcon
+from PyQt5.QtCore import qDebug, QThread, pyqtSignal
 
 from enki.core.core import core
 from enki.core.defines import CONFIG_DIR
 
-from .constants import PLUGIN_DIR_PATH, ICON_PATH
-from .helper import create_UE, loadPlugin, inUserPlugins
+from .constants import PLUGIN_DIR_PATH, PLUGINS_ICON_PATH, INSTALL_ICON_PATH
+from . import helper
 from .pluginspage import PluginsPage
+from .installpage import InstallPage
 
 
 class Plugin:
@@ -40,64 +41,25 @@ class Plugin:
     """
     def __init__(self):
         """Setup settings and activate plugin, if feasable."""
-        self._userPlugins = []  # of type ListOfUserpluginEntry
         self._checkPaths()
         self._checkSettings()
-
-        self._userPlugins = self._initPlugins()
+        self._repo = None
+        helper.initPlugins()
 
         core.uiSettingsManager().aboutToExecute.connect(
             self._onSettingsDialogAboutToExecute)
+
+        getRepoThread = GetRepoThread()
+        getRepoThread.success.connect(self._onSuccessGetRepo)
+        getRepoThread.start()
 
     def terminate(self):
         """clean up"""
         core.uiSettingsManager().aboutToExecute.disconnect(
             self._onSettingsDialogAboutToExecute)
 
-    def _initPlugins(self, userPluginsInit=[]):
-        """Loads all userplugins and returns them as a ListOfUserpluginEntry"""
-        userPlugins = userPluginsInit
-        for loader, name, isPackage in pkgutil.iter_modules([PLUGIN_DIR_PATH]):
-            if not inUserPlugins(name, userPlugins):
-                userPlugin = self._initPlugin(name)
-                if userPlugin:
-                    userPlugins.append(userPlugin)
-        return userPlugins
-
-    def _initPlugin(self, name):
-        """Load plugin by it's module name
-        returns userpluginEntry
-        """
-        module = importlib.import_module('userplugins.%s' % name)
-        try:
-            pluginEntry = create_UE(
-                module,
-                self._shouldPluginLoad(name),
-                name,
-                module.__pluginname__,
-                module.__author__,
-                module.__version__,
-                module.__doc__)
-            loadPlugin(pluginEntry)
-            return pluginEntry
-        except AttributeError:
-            logging.exception("Plugin %s misses required attributes." % name)
-            return False
-
-    def _shouldPluginLoad(self, name):
-        """Consumes a name of a plugin and checks in the settings of it should
-        be loaded.
-        If no setting is available for the plugin, it gets created.
-        Returns the setting (Bool)
-        """
-        if name not in core.config()["PluginManager"]["Plugins"]:
-            core.config()["PluginManager"]["Plugins"][name] = {}
-        if "Enabled" not in core.config()["PluginManager"]["Plugins"][name]:
-            core.config()["PluginManager"]["Plugins"][name]["Enabled"] = False
-        return core.config()["PluginManager"]["Plugins"][name]["Enabled"]
-
     def _checkPaths(self):
-        """Checks if all neccessary paths a present and if not
+        """Checks if all neccessary paths are present and if not
         creates them
         """
         initPath = os.path.join(PLUGIN_DIR_PATH, "__init__.py")
@@ -111,12 +73,31 @@ class Plugin:
     def _onSettingsDialogAboutToExecute(self, dialog):
         """UI settings dialogue is about to execute.
         """
-        self._initPlugins(self._userPlugins)
-        pluginsPage = PluginsPage(dialog, self._userPlugins)
+        self._pluginsPage = PluginsPage(dialog)
+        self._installPage = InstallPage(dialog, self._repo)
         dialog.appendPage(
             u"Plugins",
-            pluginsPage,
-            QIcon.fromTheme("preferences-plugin", QIcon(ICON_PATH)))
+            self._pluginsPage,
+            QIcon.fromTheme("preferences-plugin", QIcon(PLUGINS_ICON_PATH)))
+        dialog.appendPage(
+            u"Install",
+            self._installPage,
+            QIcon.fromTheme("document-new", QIcon(INSTALL_ICON_PATH)))
+
+        self._twMenu = dialog.twMenu
+        self._twMenu.itemSelectionChanged.connect(self._onItemSelectionChanged)
+
+    def _onItemActivated(self, item, column):
+        qDebug(item)
+
+    def _onItemSelectionChanged(self):
+        itemText = self._twMenu.selectedItems()[0].text(0)
+        if itemText == "Plugins":
+            qDebug("update pluginspage")
+            self._pluginsPage.update(helper.getPlugins())
+        elif itemText == "Install":
+            qDebug("update installpage")
+            self._installPage.update(helper.getPlugins())
 
     def _onSettingsDialogAccepted(self):
         pass
@@ -129,3 +110,22 @@ class Plugin:
             core.config()["PluginManager"] = {}
         if "Plugins" not in core.config()["PluginManager"]:
             core.config()["PluginManager"]["Plugins"] = {}
+
+    def _onSuccessGetRepo(self, repo):
+        self._repo = repo
+
+
+class GetRepoThread(QThread):
+    """Download the pluginrepository in its own thread?"""
+
+    success = pyqtSignal(dict)
+
+    def __init__(self):
+        QThread.__init__(self)
+
+    def __del__(self):
+        self.wait()
+
+    def run(self):
+        repo = helper.getRepo()
+        self.success.emit(repo)

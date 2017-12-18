@@ -1,6 +1,6 @@
 - [x] Proof of Concept
-- [ ] Study packagecontrol, atom, kate and vscode
-- [ ] Think about features and design ui
+- [x] Study packagecontrol, atom, kate and vscode
+- [x] Think about features and design ui
 - [x] Settings page
 - [x] Enable a plugin
 - [x] Disable plugin
@@ -12,4 +12,4 @@
 - [x] Update plugin list when settingspage gets opened
 - [ ] think about switching to json for meta information
 - [ ] Make it easy to create your own plugin, that I can get start with plugin development fast.
-- [ ] Download plugins from repo, repo and download page
+- [x] Download plugins from repo, repo and download page

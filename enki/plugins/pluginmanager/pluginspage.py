@@ -3,7 +3,7 @@
 from PyQt5.QtWidgets import (QWidget, QHBoxLayout, QGroupBox, QStyle,
                              QVBoxLayout, QLabel, QDialogButtonBox,
                              QScrollArea, QMessageBox)
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, qWarning
 from enki.core.core import core
 from .constants import PLUGIN_DIR_PATH
 from .helper import loadPlugin, unloadPlugin, deletePlugin
@@ -11,9 +11,8 @@ from .helper import loadPlugin, unloadPlugin, deletePlugin
 
 class PluginsPage(QWidget):
     """Settings page for the installed plugins"""
-    def __init__(self, parent, userPlugins):
+    def __init__(self, parent):
         QWidget.__init__(self, parent)
-        self._userPlugins = userPlugins
 
         # Add a scrollArea that if they are more plugins that fit into the
         # settings page
@@ -26,15 +25,25 @@ class PluginsPage(QWidget):
         scrollArea.setWidget(baseWidget)
         baseLayout.addWidget(scrollArea)
 
-        vbox = QVBoxLayout()
-        vbox.addWidget(QLabel(
+        self._vbox = QVBoxLayout()
+        self._vbox.addStretch(1)
+        baseWidget.setLayout(self._vbox)
+
+    def update(self, userPlugins):
+        """ListOfUserpluginEntry -> Void
+        Consume a list of UserpluginEntry and repopulates the plugins page"""
+        for i in reversed(range(self._vbox.count())):
+            try:
+                self._vbox.itemAt(i).widget().setParent(None)
+            except AttributeError as e:
+                qWarning("Can't call setParent of None type")
+
+        self._vbox.addWidget(QLabel(
             """<h2>Installed Plugins: <code>%i</code></h2>
             <p>Add plugins by putting them into <code>%s</code></p>
             <p><\p>""" % (len(userPlugins), PLUGIN_DIR_PATH)))
         for entry in userPlugins:
-            vbox.addWidget(PluginTitlecard(entry))
-        vbox.addStretch(1)
-        baseWidget.setLayout(vbox)
+            self._vbox.addWidget(PluginTitlecard(entry))
 
 
 class PluginTitlecard(QGroupBox):
@@ -92,7 +101,7 @@ class PluginTitlecard(QGroupBox):
             "Uninstall erases the %s plugin permanently from your disk."
             % self._pluginEntry["pluginname"],
             """Do you really want to delete the %s plugin from your disk.
-            have to reinstall it, if you want to use it again."""
+            You have to reinstall it, if you want to use it again."""
             % self._pluginEntry["pluginname"])
         msgBox.addButton("Uninstall", QMessageBox.AcceptRole)
         cancelButton = msgBox.addButton("Cancel", QMessageBox.RejectRole)
