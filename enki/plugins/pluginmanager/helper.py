@@ -66,11 +66,11 @@ def unloadPlugin(pluginEntry):
     return pluginEntry
 
 
-def deletePlugin(pluginEntry):
+def deletePlugin(pluginEntry, pluginDirPath=PLUGIN_DIR_PATH):
     """Consume a pluginEntry and delete the plugin directory or file"""
     unloadPlugin(pluginEntry)
-    dirpath = os.path.join(PLUGIN_DIR_PATH, pluginEntry["modulename"])
-    filepath = os.path.join(PLUGIN_DIR_PATH, pluginEntry["modulename"] + '.py')
+    dirpath = os.path.join(pluginDirPath, pluginEntry["modulename"])
+    filepath = os.path.join(pluginDirPath, pluginEntry["modulename"] + '.py')
     if os.path.isdir(dirpath):
         shutil.rmtree(dirpath)
     elif os.path.exists(filepath):
@@ -103,11 +103,10 @@ def isPluginInstalled(name, lope):
     return False
 
 
-def getRepo():
+def getRepo(repo=REPO):
     """Void -> Dictionary
-    Loads the repo from https://github.com/rockiger/enki-plugin-repository/
-    and returns it as a dictionary"""
-    url = urllib.request.urlopen(REPO)
+    Loads the repo and returns it as a dictionary"""
+    url = urllib.request.urlopen(repo)
     rawData = url.read().decode()
     repo = json.loads(rawData)
     logging.debug(repo)
@@ -129,13 +128,13 @@ def downloadPlugin(url, tmpPath):
         return tmpPath
 
 
-def extractPlugin(filePath):
+def extractPlugin(filePath, pluginDirPath=PLUGIN_DIR_PATH):
     """String -> Bool
     Consumes the filePath of a plugin archive and extracts it to the
     userplugins-directory, return True if extract succeeded, els False"""
     try:
         zipref = zipfile.ZipFile(filePath, 'r')
-        zipref.extractall(PLUGIN_DIR_PATH)
+        zipref.extractall(pluginDirPath)
         zipref.close()
     except Exception as e:
         logging.exception("Could not extract plugin")
@@ -148,13 +147,13 @@ def extractPlugin(filePath):
         return True
 
 
-def renamePluginFolder(oldName, newName):
+def renamePluginFolder(oldName, newName, pluginDirPath=PLUGIN_DIR_PATH):
     """String String -> Bool
     Consumes the oldName and NewName of a plugin folder and renames it in the
     userplugins-directory, return True if rename succeeded, else False"""
     try:
-        os.rename(os.path.join(PLUGIN_DIR_PATH, oldName),
-                  os.path.join(PLUGIN_DIR_PATH, newName))
+        os.rename(os.path.join(pluginDirPath, oldName),
+                  os.path.join(pluginDirPath, newName))
     except Exception as e:
         logging.exception("Could not rename plugin directory")
         return False
@@ -163,19 +162,21 @@ def renamePluginFolder(oldName, newName):
         return True
 
 
-def getPlugins():
-    """Loads all userplugins and returns them as a ListOfUserpluginEntry"""
+def getPlugins(pluginDirPath=PLUGIN_DIR_PATH):
+    """String -> ListOfUserpluginEntry
+    Loads all userplugins and returns them as a ListOfUserpluginEntry"""
     userPlugins = []
-    for loader, name, isPackage in pkgutil.iter_modules([PLUGIN_DIR_PATH]):
+    for loader, name, isPackage in pkgutil.iter_modules([pluginDirPath]):
         if not inUserPlugins(name, userPlugins):
-            userPlugin = getPlugin(name)
+            userPlugin = getPlugin(name, pluginDirPath)
             if userPlugin:
                 userPlugins.append(userPlugin)
     return userPlugins
 
 
-def getPlugin(name):
-    """ get plugin by it's module name and returns userpluginEntry
+def getPlugin(name, pluginDirPath=PLUGIN_DIR_PATH):
+    """String (String) -> PluginEntry
+    get plugin by it's module name and returns userpluginEntry
     """
     module = importlib.import_module('userplugins.%s' % name)
     try:
@@ -209,8 +210,9 @@ def initPlugin(name):
 
 
 def shouldPluginLoad(name):
-    """Consumes a name of a plugin and checks in the settings if it should
-    be loaded.
+    """String Dict -> Bool
+    Consumes a name of a plugin and the enki configuration and
+    checks in the settings if it should be loaded.
     If no setting is available for the plugin, it gets created.
     Returns the setting (Bool)
     """
