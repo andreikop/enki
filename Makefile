@@ -57,7 +57,7 @@ put-obs: ${OBS_REPO_DIR} deb-obs
 	rm -f ${OBS_REPO_DIR}/enki/*
 	cp rpm/enki.spec ${OBS_REPO_DIR}/enki
 	cp dist/${ARCHIVE} ${OBS_REPO_DIR}/enki
-	cp ${DEB_BUILD_DIR}/*.debian.tar.gz ${OBS_REPO_DIR}/enki
+	cp ${DEB_BUILD_DIR}/*.debian.tar.xz ${OBS_REPO_DIR}/enki
 	cp ${DEB_BUILD_DIR}/*.orig.tar.gz ${OBS_REPO_DIR}/enki
 	cp ${DEB_BUILD_DIR}/*.dsc ${OBS_REPO_DIR}/enki
 	cd ${OBS_REPO_DIR}/enki && \

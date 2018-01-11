@@ -3,7 +3,7 @@ Upstream-Name: enki
 Source: <http://enki-editor.org>
 
 Files: *
-Copyright: 2012 Andrei Kopats <hlamer@tut.by>
+Copyright: 2012 Andrei Kopats <andrei.kopats@gmail.com>
 License: GPL-2
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -19,7 +19,7 @@ License: GPL-2
  along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
 
 Files: debian/*
-Copyright: 2012 Andrei Kopats <hlamer@tut.by>
+Copyright: 2012 Andrei Kopats <andrei.kopats@gmail.com>
 License: GPL-2
  This package is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by

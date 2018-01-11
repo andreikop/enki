@@ -1,15 +1,21 @@
+enki (17.3.3-1~ubuntuseries1) ubuntuseries; urgency=medium
+
+  * Debian build fixes
+
+ -- Andrei Kopats <hlamer@tut.by>  Thu, 11 Jan 2018 12:28:34 +0300
+
 enki (17.03.0-1~ubuntuseries1) ubuntuseries; urgency=medium
 
   * Quit action
 
- -- Andrei Kopats <hlamer@tut.by>  Mon, 27 Mar 2017 23:05:37 +0300
+ -- Andrei Kopats <andrei.kopats@gmail.com>  Mon, 27 Mar 2017 23:05:37 +0300
 
 enki (16.04.1-1~ubuntuseries1) ubuntuseries; urgency=medium
 
   * Show Qt version
   * Preview fixes
 
- -- Andrei Kopats <hlamer@tut.by>  Wed, 15 Jun 2016 15:09:23 +0300
+ -- Andrei Kopats <andrei.kopats@gmail.com>  Wed, 15 Jun 2016 15:09:23 +0300
 
 enki (16.04.0-1~ubuntuseries1) ubuntuseries; urgency=medium
 
@@ -17,20 +23,20 @@ enki (16.04.0-1~ubuntuseries1) ubuntuseries; urgency=medium
   * Show and prioritize open files in Locator
   * (Un)comment lines functionality
 
- -- Andrei Kopats <hlamer@tut.by>  Fri, 25 Mar 2016 10:00:09 +0300
+ -- Andrei Kopats <andrei.kopats@gmail.com>  Fri, 25 Mar 2016 10:00:09 +0300
 
 enki (15.11.1-1~ubuntuseries1) ubuntuseries; urgency=medium
 
   * GUI fixes for Fedora and Windows
 
- -- Andrei Kopats <hlamer@tut.by>  Mon, 11 Jan 2016 22:28:13 +0300
+ -- Andrei Kopats <andrei.kopats@gmail.com>  Mon, 11 Jan 2016 22:28:13 +0300
 
 enki (15.11.0-1~ubuntuseries1) ubuntuseries; urgency=medium
 
   * Fuzzy opener
   * Bug fixes and improvements
 
- -- Andrei Kopats <hlamer@tut.by>  Mon, 30 Nov 2015 23:29:14 +0300
+ -- Andrei Kopats <andrei.kopats@gmail.com>  Mon, 30 Nov 2015 23:29:14 +0300
 
 enki (15.06.0-1~ubuntuseries1) ubuntuseries; urgency=low
 
@@ -42,7 +48,7 @@ enki (15.05.0-1~ubuntuseries1) ubuntuseries; urgency=low
 
   * Preview improvements
 
- -- Andrei Kopats <hlamer@tut.by>  Sat, 30 May 2015 22:07:50 +0300
+ -- Andrei Kopats <andrei.kopats@gmail.com>  Sat, 30 May 2015 22:07:50 +0300
 
 enki (15.04.0-1~ubuntuseries1) ubuntuseries; urgency=low
 
@@ -50,13 +56,13 @@ enki (15.04.0-1~ubuntuseries1) ubuntuseries; urgency=low
   * Literate programming and preview enhancements
   * Improvements and bugfixes
 
- -- Andrei Kopats <hlamer@tut.by>  Mon, 27 Apr 2015 21:09:16 +0300
+ -- Andrei Kopats <andrei.kopats@gmail.com>  Mon, 27 Apr 2015 21:09:16 +0300
 
 enki (14.07.2-1~ubuntuseries1) ubuntuseries; urgency=low
 
   * Fix pylint and navigator related bugs
 
- -- Andrei Kopats <hlamer@tut.by>  Mon, 18 Aug 2014 22:49:17 +0300
+ -- Andrei Kopats <andrei.kopats@gmail.com>  Mon, 18 Aug 2014 22:49:17 +0300
 
 enki (14.07.0-1~ubuntuseries1) ubuntuseries; urgency=low
 
@@ -64,7 +70,7 @@ enki (14.07.0-1~ubuntuseries1) ubuntuseries; urgency=low
   * Source code to HTML conversion support (literate programming) by Bryan Jones
   * Pylint support
 
- -- Andrei Kopats <hlamer@tut.by>  Tue, 22 Jul 2014 22:56:46 +0300
+ -- Andrei Kopats <andrei.kopats@gmail.com>  Tue, 22 Jul 2014 22:56:46 +0300
 
 enki (14.03.0-1~ubuntuseries1) ubuntuseries; urgency=low
 
@@ -74,20 +80,20 @@ enki (14.03.0-1~ubuntuseries1) ubuntuseries; urgency=low
   * Navigator tree filtering
   * Strip trailing whitespaces
 
- -- Andrei Kopats <hlamer@tut.by>  Thu, 13 Mar 2014 09:08:16 +0300
+ -- Andrei Kopats <andrei.kopats@gmail.com>  Thu, 13 Mar 2014 09:08:16 +0300
 
 enki (13.11.1-1~ubuntuseries1) ubuntuseries; urgency=low
 
   * Fix crash in Navigator
   * Recursively create directories on file save
 
- -- Andrei Kopats <hlamer@tut.by>  Mon, 25 Nov 2013 10:16:17 +0300
+ -- Andrei Kopats <andrei.kopats@gmail.com>  Mon, 25 Nov 2013 10:16:17 +0300
 
 enki (13.11.0-1~ubuntuseries1) ubuntuseries; urgency=low
 
   * Navigation in a file, based on ctags
 
- -- Andrei Kopats <hlamer@tut.by>  Wed, 06 Nov 2013 08:31:30 +0300
+ -- Andrei Kopats <andrei.kopats@gmail.com>  Wed, 06 Nov 2013 08:31:30 +0300
 
 enki (13.09.1-1~ubuntuseries1) ubuntuseries; urgency=low
 
@@ -102,68 +108,68 @@ enki (13.09.1-1~ubuntuseries1) ubuntuseries; urgency=low
   * Templates for Markdown preview
   * Restore position after replace in file
 
- -- Andrei Kopats <hlamer@tut.by>  Tue, 01 Oct 2013 08:21:59 +0300
+ -- Andrei Kopats <andrei.kopats@gmail.com>  Tue, 01 Oct 2013 08:21:59 +0300
 
 enki (13.08.1-1~ppa1) ubuntuseries; urgency=low
 
   * Do not check dependencies during build
 
- -- Andrei Kopats <hlamer@tut.by>  Thu, 08 Aug 2013 23:16:29 +0300
+ -- Andrei Kopats <andrei.kopats@gmail.com>  Thu, 08 Aug 2013 23:16:29 +0300
 
 enki (13.08.0-1~ppa1) ubuntuseries; urgency=low
 
   * New code editor component: Qutepart
 
- -- Andrei Kopats <hlamer@tut.by>  Mon, 29 Jul 2013 08:56:00 +0300
+ -- Andrei Kopats <andrei.kopats@gmail.com>  Mon, 29 Jul 2013 08:56:00 +0300
 
 enki (12.08.5-1~ppa1) ubuntuseries; urgency=low
 
   * Experimental appmenu crash fix
 
- -- Andrei Kopats <hlamer@tut.by>  Sat, 11 Aug 2012 15:26:04 +0300
+ -- Andrei Kopats <andrei.kopats@gmail.com>  Sat, 11 Aug 2012 15:26:04 +0300
 
 enki (12.08.4-1~ppa1) ubuntuseries; urgency=low
 
   * Fix double search
 
- -- Andrei Kopats <hlamer@tut.by>  Fri, 10 Aug 2012 09:37:46 +0300
+ -- Andrei Kopats <andrei.kopats@gmail.com>  Fri, 10 Aug 2012 09:37:46 +0300
 
 enki (12.08.3-1~ppa1) ubuntuseries; urgency=low
 
   * Make next search or replace when Return pressed
 
- -- Andrei Kopats <hlamer@tut.by>  Thu, 09 Aug 2012 20:45:06 +0300
+ -- Andrei Kopats <andrei.kopats@gmail.com>  Thu, 09 Aug 2012 20:45:06 +0300
 
 enki (12.08.2-1~ppa1) ubuntuseries; urgency=low
 
   * Fix look on some platforms
 
- -- Andrei Kopats <hlamer@tut.by>  Thu, 09 Aug 2012 10:03:03 +0300
+ -- Andrei Kopats <andrei.kopats@gmail.com>  Thu, 09 Aug 2012 10:03:03 +0300
 
 enki (12.08.1-1~ppa1) ubuntuseries; urgency=low
 
   * Fix official page link
   * Better SVG logo
 
- -- Andrei Kopats <hlamer@tut.by>  Wed, 08 Aug 2012 09:41:09 +0300
+ -- Andrei Kopats <andrei.kopats@gmail.com>  Wed, 08 Aug 2012 09:41:09 +0300
 
 enki (12.08.0-1~ppa1) ubuntuseries; urgency=low
 
   * Renamed from mksv3 to Enki
 
- -- Andrei Kopats <hlamer@tut.by>  Tue, 07 Aug 2012 10:05:22 +0300
+ -- Andrei Kopats <andrei.kopats@gmail.com>  Tue, 07 Aug 2012 10:05:22 +0300
 
 enki (12.06.3-1~ppa1) ubuntuseries; urgency=low
 
   * Added missing .ui and .json
 
- -- Andrei Kopats <hlamer@tut.by>  Mon, 18 Jun 2012 23:13:00 +0300
+ -- Andrei Kopats <andrei.kopats@gmail.com>  Mon, 18 Jun 2012 23:13:00 +0300
 
 enki (12.06.2-1~ppa1) ubuntuseries; urgency=low
 
   * Fix for Debian build system
 
- -- Andrei Kopats <hlamer@tut.by>  Mon, 18 Jun 2012 08:10:32 +0300
+ -- Andrei Kopats <andrei.kopats@gmail.com>  Mon, 18 Jun 2012 08:10:32 +0300
 
 enki (12.06.1-1~ppa1) ubuntuseries; urgency=low
 
@@ -171,13 +177,13 @@ enki (12.06.1-1~ppa1) ubuntuseries; urgency=low
   * Open directories in File Browser, when drag-n-dropt to the main window
   * Highlight search results with yellow in the editor
 
- -- Andrei Kopats <hlamer@tut.by>  Mon, 18 Jun 2012 08:10:32 +0300
+ -- Andrei Kopats <andrei.kopats@gmail.com>  Mon, 18 Jun 2012 08:10:32 +0300
 
 enki (12.04.1-1~ppa1) ubuntuseries; urgency=low
 
   * Bug fixes
 
- -- Andrei Kopats <hlamer@tut.by>  Mon, 09 Apr 2012 20:38:10 +0300
+ -- Andrei Kopats <andrei.kopats@gmail.com>  Mon, 09 Apr 2012 20:38:10 +0300
 
 enki (12.04-1~ppa1) ubuntuseries; urgency=low
 
@@ -193,7 +199,7 @@ enki (12.04-1~ppa1) ubuntuseries; urgency=low
   * Highlight focused GUI widgets with red border
   * Highlight search in direcoty results in the list with yellow background
 
- -- Andrei Kopats <hlamer@tut.by>  Sun, 08 Apr 2012 08:21:55 +0300
+ -- Andrei Kopats <andrei.kopats@gmail.com>  Sun, 08 Apr 2012 08:21:55 +0300
 
 enki (0.2.7-1~ppa1) ubuntuseries; urgency=low
 
@@ -201,19 +207,19 @@ enki (0.2.7-1~ppa1) ubuntuseries; urgency=low
   * Support for +N specification to go to particular line in a file
   * Bug fixes
 
- -- Andrei Kopats <hlamer@tut.by>  Mon, 20 Feb 2012 01:14:47 +0300
+ -- Andrei Kopats <andrei.kopats@gmail.com>  Mon, 20 Feb 2012 01:14:47 +0300
 
 enki (0.2.6-1~ubuntuseries1) ubuntuseries; urgency=low
 
   * Changed distribution name to ubuntuseries and compatibility level to 7
 
- -- Andrei Kopats <hlamer@tut.by>  Thu, 02 Feb 2012 10:47:00 +0300
+ -- Andrei Kopats <andrei.kopats@gmail.com>  Thu, 02 Feb 2012 10:47:00 +0300
 
 enki (0.2.5-1~ubuntuseries1) ubuntuseries; urgency=low
 
   * Crash fix
 
- -- Andrei Kopats <hlamer@tut.by>  Wed, 01 Feb 2012 19:54:34 +0300
+ -- Andrei Kopats <andrei.kopats@gmail.com>  Wed, 01 Feb 2012 19:54:34 +0300
 
 enki (0.2.4-1~ubuntuseries1) ubuntuseries; urgency=low
 
@@ -222,27 +228,27 @@ enki (0.2.4-1~ubuntuseries1) ubuntuseries; urgency=low
   * Changed debian version numbering
   * Fixed incorrect search in a directory
 
- -- Andrei Kopats <hlamer@tut.by>  Wed, 01 Feb 2012 19:25:53 +0300
+ -- Andrei Kopats <andrei.kopats@gmail.com>  Wed, 01 Feb 2012 19:25:53 +0300
 
 enki (0.2.3-ppa0) oneiric; urgency=low
 
   * Fixed crash in the file browser
 
- -- Andrei Kopats <hlamer@tut.by>  Tue, 31 Jan 2012 20:33:17 +0300
+ -- Andrei Kopats <andrei.kopats@gmail.com>  Tue, 31 Jan 2012 20:33:17 +0300
 
 enki (0.2.2-ppa0) oneiric; urgency=low
 
   * Fixed syntax error in the debian/control
   * Package metadata update
 
- -- Andrei Kopats <hlamer@tut.by>  Tue, 31 Jan 2012 08:23:43 +0300
+ -- Andrei Kopats <andrei.kopats@gmail.com>  Tue, 31 Jan 2012 08:23:43 +0300
 
 enki (0.2.1-ppa0) oneiric; urgency=low
 
   * Scheme support bug fixes
   * Declared compatibility with python 2.6
 
- -- Andrei Kopats <hlamer@tut.by>  Mon, 30 Jan 2012 21:54:36 +0300
+ -- Andrei Kopats <andrei.kopats@gmail.com>  Mon, 30 Jan 2012 21:54:36 +0300
 
 enki (0.2.0-ppa0) oneiric; urgency=low
 
@@ -250,41 +256,41 @@ enki (0.2.0-ppa0) oneiric; urgency=low
   * Removed dependency on fresh package
   * Bug fixes
 
- -- Andrei Kopats <hlamer@tut.by>  Mon, 30 Jan 2012 08:04:16 +0300
+ -- Andrei Kopats <andrei.kopats@gmail.com>  Mon, 30 Jan 2012 08:04:16 +0300
 
 enki (0.1.5-ppa0) oneiric; urgency=low
 
   * Crash fix
 
- -- Andrei Kopats (laptop) <hlamer@tut.by>  Sun, 20 Nov 2011 23:18:00 +0300
+ -- Andrei Kopats (laptop) <andrei.kopats@gmail.com>  Sun, 20 Nov 2011 23:18:00 +0300
 
 enki (0.1.4-ppa0) oneiric; urgency=low
 
   * Few bug fixes
 
- -- Andrei Kopats (laptop) <hlamer@tut.by>  Sun, 20 Nov 2011 21:00:54 +0300
+ -- Andrei Kopats (laptop) <andrei.kopats@gmail.com>  Sun, 20 Nov 2011 21:00:54 +0300
 
 enki (0.1.3-ppa0) oneiric; urgency=low
 
   * Added missing .desktop file
 
- -- Andrei Kopats (laptop) <hlamer@tut.by>  Sun, 13 Nov 2011 09:36:18 +0300
+ -- Andrei Kopats (laptop) <andrei.kopats@gmail.com>  Sun, 13 Nov 2011 09:36:18 +0300
 
 enki (0.1.2-ppa0) oneiric; urgency=low
 
   * Changed version to ppa0
 
- -- Andrei Kopats (laptop) <hlamer@tut.by>  Sat, 12 Nov 2011 14:06:54 +0300
+ -- Andrei Kopats (laptop) <andrei.kopats@gmail.com>  Sat, 12 Nov 2011 14:06:54 +0300
 
 enki (0.1.1-0ubuntu1) oneiric; urgency=low
 
   * Added fresh dependency
 
- -- Andrei Kopats (Key for PPA) <hlamer@tut.by>  Fri, 11 Nov 2011 19:01:44 +0300
+ -- Andrei Kopats (Key for PPA) <andrei.kopats@gmail.com>  Fri, 11 Nov 2011 19:01:44 +0300
 
 enki (0.1a-0ubuntu1) oneiric; urgency=low
 
   [ Andrei Kopats ]
   * Initial release
 
- -- Andrei Kopats (Key for PPA) <hlamer@tut.by>  Fri, 11 Nov 2011 19:00:36 +0300
+ -- Andrei Kopats (Key for PPA) <andrei.kopats@gmail.com>  Fri, 11 Nov 2011 19:00:36 +0300
