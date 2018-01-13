@@ -9,6 +9,7 @@ import pkgutil
 import importlib
 import logging
 
+from . import constants
 from enki.core.core import core
 from .constants import PLUGIN_DIR_PATH, REPO
 
@@ -106,10 +107,14 @@ def isPluginInstalled(name, lope):
 def getRepo(repo=REPO):
     """Void -> Dictionary
     Loads the repo and returns it as a dictionary"""
-    url = urllib.request.urlopen(repo)
-    rawData = url.read().decode()
-    repo = json.loads(rawData)
-    logging.debug(repo)
+    try:
+        url = urllib.request.urlopen(repo)
+    except Exception as e:
+        repo = constants.EMPTY_REPO
+    else:
+        rawData = url.read().decode()
+        repo = json.loads(rawData)
+        logging.debug(repo)
     return repo
 
 
