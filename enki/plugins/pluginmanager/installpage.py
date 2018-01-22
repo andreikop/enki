@@ -31,13 +31,13 @@ class InstallPage(QWidget):
         scrollArea.setWidgetResizable(True)
         scrollArea.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         baseLayout = QVBoxLayout()
+        baseLayout.setAlignment(Qt.AlignTop)
         self.setLayout(baseLayout)
         baseWidget = QWidget()
         scrollArea.setWidget(baseWidget)
         baseLayout.addWidget(scrollArea)
 
         self._vbox = QVBoxLayout()
-        self._vbox.addStretch(1)
         baseWidget.setLayout(self._vbox)
 
     def update(self, userPlugins):
@@ -49,8 +49,12 @@ class InstallPage(QWidget):
             except AttributeError as e:
                 qWarning("Can't call setParent of None type")
 
-        self._vbox.addWidget(QLabel(
-            """<h2>Install Plugins</h2>"""))
+        labelText = "<h2>Install Plugins</h2>"
+        if (len(self._repo["plugins"]) < 1):
+            labelText += "<p>It seems we could not load the plugin repository.</p>"
+            labelText += "<p style='color:red'>Make shure your internet connection is working and restart Enki.</p><p></p>"
+        self._vbox.addWidget(QLabel(labelText))
+
         for entry in self._repo["plugins"]:
             isInstalled = helper.isPluginInstalled(entry["name"], userPlugins)
             if isInstalled:

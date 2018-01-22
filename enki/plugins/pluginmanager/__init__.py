@@ -29,7 +29,7 @@ from enki.core.core import core
 from enki.core.defines import CONFIG_DIR
 
 from .constants import PLUGIN_DIR_PATH, PLUGINS_ICON_PATH, INSTALL_ICON_PATH
-from . import helper
+from . import helper, constants
 from .pluginspage import PluginsPage
 from .installpage import InstallPage
 
@@ -43,7 +43,7 @@ class Plugin:
         """Setup settings and activate plugin, if feasable."""
         self._checkPaths()
         self._checkSettings()
-        self._repo = None
+        self._repo = constants.EMPTY_REPO
         helper.initPlugins()
 
         core.uiSettingsManager().aboutToExecute.connect(

@@ -26,7 +26,6 @@ class PluginsPage(QWidget):
         baseLayout.addWidget(scrollArea)
 
         self._vbox = QVBoxLayout()
-        self._vbox.addStretch(1)
         baseWidget.setLayout(self._vbox)
 
     def update(self, userPlugins):
@@ -44,6 +43,8 @@ class PluginsPage(QWidget):
             <p><\p>""" % (len(userPlugins), PLUGIN_DIR_PATH)))
         for entry in userPlugins:
             self._vbox.addWidget(PluginTitlecard(entry))
+
+        self._vbox.addStretch(1)
 
 
 class PluginTitlecard(QGroupBox):
