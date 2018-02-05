@@ -38,7 +38,7 @@ All is well if an object and a wrapper are created and deleted simultaneously. B
 >>> RuntimeError: '__init__' method of object's base class (MyObject) not called.
 ```
 
-This and other code is available [here](https://github.com/hlamer/pyqt-memory-mgmt)
+This and other code is available [here](https://github.com/andreikop/pyqt-memory-mgmt)
 
 `MyObject` constructor doesn't call the constructor of the base class. MyObject is successfully created and can be used. But when the C++ method is called, a `RuntimeError` is issued. The exception explains what is wrong.
 
@@ -121,11 +121,11 @@ Of course if a programmer has called `deleteLater()` and then uses an object, it
 * A slot of the deleted object is called by timer or signal from the external world
 * The application crashes or generates an exception
 
-[Long real life code example](https://github.com/hlamer/pyqt-memory-mgmt/blob/master/4-reallife.py)
+[Long real life code example](https://github.com/andreikop/pyqt-memory-mgmt/blob/master/4-reallife.py)
 
 #### When slots are disconnected automatically
 
-In a C++ application, when object is deleted, all slots are disconnected automatically. But in some cases PyQt and PySide can't disconnect an object. I was curious to know what these cases are. During my experiments [this test](https://github.com/hlamer/pyqt-memory-mgmt/blob/master/5-disconnect.py) was created.
+In a C++ application, when object is deleted, all slots are disconnected automatically. But in some cases PyQt and PySide can't disconnect an object. I was curious to know what these cases are. During my experiments [this test](https://github.com/andreikop/pyqt-memory-mgmt/blob/master/5-disconnect.py) was created.
 
 I discovered that the result depends on the method's programming language. And the behaviour differs for PyQt and PySide.
 

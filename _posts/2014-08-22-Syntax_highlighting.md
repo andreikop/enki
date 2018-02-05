@@ -11,7 +11,7 @@ baseurl: ../../../
 *This article was written 1 year ago. I finally found the time to translate it to English*
 
 If you are a programmer, you spend a significant amount of your time coding. It doesn't matter how many buttons or menus or IDE or editor has, the core is a code editor component. Do you know how it works?
-This article explains how syntax highlighting in [Qutepart](https://github.com/hlamer/qutepart) (and [katepart](http://kate-editor.org/about-katepart/)) works. The article is not about UI, but about the architecture. If you are interested, lets go..
+This article explains how syntax highlighting in [Qutepart](https://github.com/andreikop/qutepart) (and [katepart](http://kate-editor.org/about-katepart/)) works. The article is not about UI, but about the architecture. If you are interested, lets go..
 
 ### Motivation
 I'm developing [Enki](http://enki-editor.org) - a universal, cross platform, extensible text editor inspired by Vim and Emacs. But, with a bit more intuitive and modern GUI. The editor is coded in Python. Initially I used the QScintilla text editor component, but it has some limitations which are not compatible with my goals.
@@ -87,7 +87,7 @@ For the overwhelming majority of real files a user always sees a highlighted fil
 ### The result
 <img src="http://habrastorage.org/storage2/d25/87a/120/d2587a1206357246e4172df4fb99121a.png"/>
 
-One year ago I released the code editor component [Qutepart](https://github.com/hlamer/qutepart) and the code editor [Enki](http://enki-editor.org) based on it.
+One year ago I released the code editor component [Qutepart](https://github.com/andreikop/qutepart) and the code editor [Enki](http://enki-editor.org) based on it.
 The component depends on PyQt and pcre and contains extension in C. The Syntax Definition files and the indentation algorithms were taken from katepart. Like katepart, the code was released under LGPL.
 
 This article explains how Qutepart (and partially katepart) syntax highlighting works. I would be happy to read in your comments how highlighting is implemented in other editors.

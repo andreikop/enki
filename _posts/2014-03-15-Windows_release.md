@@ -7,7 +7,7 @@ baseurl: ../../../
 # Windows release is out
 
 Windows release of Enki is finally out! Thanks to Bryan A. Jones, who has done the majority of work.
-You can download Windows installer [here](https://github.com/hlamer/enki/releases).
+You can download Windows installer [here](https://github.com/andreikop/enki/releases).
 
 <img src="../../../blog-screens/win-release.png"/>
 

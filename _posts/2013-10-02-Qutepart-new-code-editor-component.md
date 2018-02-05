@@ -11,7 +11,7 @@ I guess a text editor component.
 
 For many years Monkey Studio had been using QScintilla. Enki, derived from MkS, also used to use QScintilla in the first release. And we never have been happy with it. In fact, we have been hating it, but, there are no alternatives for Qt.
 
-Now this problem is resolved for Enki. I created own code editor component - [Qutepart](https://github.com/hlamer/qutepart)
+Now this problem is resolved for Enki. I created own code editor component - [Qutepart](https://github.com/andreikop/qutepart)
 <img src="../../../blog-screens/qutepart.png"/>
 
 QScintilla has binary parsers, implemented in C++. It is quite difficult to create new parsers (who likes coding in C++?). I counted 30 parsers in current MkS version.

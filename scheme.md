@@ -28,7 +28,7 @@ Enki does not support GUI debugging. But, you can use MIT Scheme's interpreter f
 By default, Enki indents Scheme files according to the  http://community.schemewiki.org/?scheme-style. If you want to disable smart indentation, edit the ''SchemeIndentHelper'' option in your ${HOME}/.enki/enki.json
 
 ### Make Enki Scheme mode better
-hlamer: I created this mode for my SICP exercises (When I'm writing this post, I've almost finished the 3rd chapter). I'm not an experienced schemer, nor an emacs guru. **If you know how to enhance the mode, tell me!**
+andreikop: I created this mode for my SICP exercises (When I'm writing this post, I've almost finished the 3rd chapter). I'm not an experienced schemer, nor an emacs guru. **If you know how to enhance the mode, tell me!**
 
 
 

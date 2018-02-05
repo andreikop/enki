@@ -7,11 +7,11 @@ baseurl: .
 
 ## Andrei Kopats
 
-[**hlamer**](https://github.com/hlamer)
+[**andreikop**](https://github.com/andreikop)
 
 ![Photo](photo/andrei.kopats.png)
 
-[hlamer@tut.by](mailto:hlamer@tut.by)
+[andrei.kopats@gmail.com](mailto:andrei.kopats@gmail.com)
 
 Enki developer.
 <hr/>

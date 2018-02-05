@@ -35,13 +35,13 @@ baseurl: .
     <div id="download">
 
         <div>
-            <a href="https://github.com/hlamer/enki/#installation" class="download-button">
+            <a href="https://github.com/andreikop/enki/#installation" class="download-button">
                 <img src="../img/tgz.png"/>
                 <br/>
                 Source<br/>package
             </a>
 
-            <a href="http://software.opensuse.org/download.html?project=home%3Ahlamer%3Aenki&amp;package=enki" class="download-button">
+            <a href="http://software.opensuse.org/download.html?project=home%3Aandreikop%3Aenki&amp;package=enki" class="download-button">
                 <table valign="center">
                     <tr>
                         <td>
@@ -64,7 +64,7 @@ baseurl: .
                 Linux<br/>installer
             </a>
 
-            <a href="http://github.com/hlamer/enki/releases" class="download-button">
+            <a href="http://github.com/andreikop/enki/releases" class="download-button">
                 <img src="../img/win.svg" width="110" height="110"/>
                 <br/>
                 Windows<br/>installer
