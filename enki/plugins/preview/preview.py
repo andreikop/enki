@@ -708,7 +708,7 @@ class PreviewDock(DockWidget):
             QMessageBox.information(
                 core.mainWindow(),
                 'Custom templaes help',
-                '<html>See <a href="https://github.com/hlamer/enki/wiki/Markdown-preview-templates">'
+                '<html>See <a href="https://github.com/andreikop/enki/wiki/Markdown-preview-templates">'
                 'this</a> wiki page for information about custom templates')
             self._restorePreviousTemplate()
 

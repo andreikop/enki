@@ -2,7 +2,7 @@ enki (17.3.3-1~ubuntuseries1) ubuntuseries; urgency=medium
 
   * Debian build fixes
 
- -- Andrei Kopats <hlamer@tut.by>  Thu, 11 Jan 2018 12:28:34 +0300
+ -- Andrei Kopats <andrei.kopats@gmail.com>  Thu, 11 Jan 2018 12:28:34 +0300
 
 enki (17.03.0-1~ubuntuseries1) ubuntuseries; urgency=medium
 

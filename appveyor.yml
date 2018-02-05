@@ -13,7 +13,7 @@ install:
   # Add the correct Python to the path.
   - set PATH=%PYTHON%;%PYTHON%\Scripts;%PATH%
   # Install dependencies needed by the CI script.
-  - git clone https://github.com/hlamer/qutepart.git
+  - git clone https://github.com/andreikop/qutepart.git
   - python -m pip install -U -r qutepart\tests\ci\requirements.txt
   # Use a python script to do all the heavy lifting.
   - python tests\ci.py install

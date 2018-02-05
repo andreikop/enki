@@ -456,7 +456,7 @@ Here is some text after a table.""", True)
     @base.inMainLoop
     @requiresModule('docutils')
     def test_sync13a(self):
-        """ Make sure sync stops if the Preview dock is hidden. See https://github.com/hlamer/enki/issues/352.
+        """ Make sure sync stops if the Preview dock is hidden. See https://github.com/andreikop/enki/issues/352.
         """
         # First, open the preview dock.
         self._doBasicTest('rst')

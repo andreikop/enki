@@ -469,7 +469,7 @@ class _CompletableLineEdit(QLineEdit):
 class _CompleterLoaderThread(Thread):
     """Thread constructs Completer
     Sometimes it requires a lot of time, i.e. when expanding "/usr/lib/*"
-    hlamer: I tried to use QThread + pyqtSignal, but got tired with crashes and deadlocks
+    andreikop: I tried to use QThread + pyqtSignal, but got tired with crashes and deadlocks
     """
     daemon = True
 

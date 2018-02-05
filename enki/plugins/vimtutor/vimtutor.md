@@ -12,7 +12,7 @@ It is important to remember that this tutor is set up to teach by use.  That mea
 
 It could be easier to read this tutorial if you open the Preview dock. **But do the edit operation on the code!**
 
-NOTE: when you've finished with the tutorial, read [commands reference](https://github.com/hlamer/enki/wiki/Vim)
+NOTE: when you've finished with the tutorial, read [commands reference](https://github.com/andreikop/enki/wiki/Vim)
 
 -----------------------------------------------------------------------------
 ## Lesson 0: Switching on Vim mode
@@ -621,7 +621,7 @@ NOTE:  Replace mode is like Insert mode, but every typed character deletes an
 
 -----------------------------------------------------------------------------
   This concludes the Vim mode Tutor.  It was intended to give a brief overview of the Vim mode, just enough to allow you to use the mode fairly easily.
-  Check the [documentation](https://github.com/hlamer/enki/wiki/Vim) to find many more useful commands.
+  Check the [documentation](https://github.com/andreikop/enki/wiki/Vim) to find many more useful commands.
 
   This tutorial is based on original Vim tutorial by Michael C. Pierce and Robert K. Ware, Colorado School of Mines using ideas supplied by Charles Smith, Colorado State University. E-mail: bware@mines.colorado.edu.
 

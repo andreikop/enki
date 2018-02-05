@@ -107,7 +107,7 @@ class BufferedPopen:
     def _readOutputThread(self, pipe):
         """Reader thread function. Reads output from process to queue
         """
-        # hlamer: Reading output by one character is not effective, but, I don't know
+        # andreikop: Reading output by one character is not effective, but, I don't know
         # how to implement non-blocking reading of not full lines better
         def readChar():
             pendingData = b''

@@ -46,7 +46,7 @@ class AbstractPathCompleter(AbstractCompleter):
         self._error = None
         self._status = None
 
-        """hlamer: my first approach is making self._model static member of class. But, sometimes it
+        """andreikop: my first approach is making self._model static member of class. But, sometimes it
         returns incorrect icons. I really can't understand when and why.
         When it is private member of instance, it seems it works
         """

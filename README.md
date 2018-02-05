@@ -13,7 +13,7 @@ Mandatory:
 
 * [Python 3](http://python.org/download)
 * [PyQt5](http://www.riverbankcomputing.co.uk/software/pyqt/download). With SVG support.
-* [Qutepart](https://github.com/hlamer/qutepart)
+* [Qutepart](https://github.com/andreikop/qutepart)
 
 Optional:
 
@@ -34,17 +34,17 @@ Optional:
 ```
    *If your repo doesn't contain **python3-pyqt5.qtwebengine**, remove **python3-pyqt5**, **python3-sip**, and do* `pip3 install PyQt5`
 
-Install Qutepart from [sources](https://github.com/hlamer/qutepart).
+Install Qutepart from [sources](https://github.com/andreikop/qutepart).
 #### Other Unixes
 Find and install listed packages with your package manager.
-Install Qutepart from [sources](https://github.com/hlamer/qutepart).
+Install Qutepart from [sources](https://github.com/andreikop/qutepart).
 #### Other systems
 
 Go to official pages of the projects, download packages and install according to instructions.
 
 ### 2. Get the sources
 
-[Download](https://github.com/hlamer/enki/releases) source archive
+[Download](https://github.com/andreikop/enki/releases) source archive
 
 
 ### 3. Install Enki
@@ -62,7 +62,7 @@ Don't forget to send a bug report if you are having some problems
 
 ## Authors
 
-* **Andrei Kopats** (aka **hlamer**) ported core and some plugins to Python, reworked it and released the result as *Enki*
+* **Andrei Kopats** (aka **andreikop**) ported core and some plugins to Python, reworked it and released the result as *Enki*
 * **Filipe Azevedo**, **Andrei Kopats** and [Monkey Studio v2 team](http://monkeystudio.org/team) developed *Monkey Studio v2*
 
 [The Team](http://enki-editor.org/team.html)
@@ -70,4 +70,4 @@ Don't forget to send a bug report if you are having some problems
 ## Contacts
 [enki-editor@googlegroups.com](mailto:enki-editor@googlegroups.com)
 
-[hlamer@tut.by](mailto:hlamer@tut.by)
+[andrei.kopats@gmail.com](mailto:andrei.kopats@gmail.com)

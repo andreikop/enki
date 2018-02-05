@@ -104,9 +104,9 @@ def _checkDependencies(profiler):
     """Check if 3rdparty software is installed in the system.
     Notify user, how to install it
     """
-    _SEE_SITE_PLAIN = 'See https://github.com/hlamer/enki/#installation'
+    _SEE_SITE_PLAIN = 'See https://github.com/andreikop/enki/#installation'
     _SEE_SITE_HTML = \
-        'See <a href="https://github.com/hlamer/enki/#installation">' \
+        'See <a href="https://github.com/andreikop/enki/#installation">' \
         'installation instructions</a>'
 
     try:
@@ -124,13 +124,13 @@ def _checkDependencies(profiler):
     except ImportError as ex:
         html = "<html>" + \
             "Failed to import qutepart.<br/>" \
-            "See <a href=\"https://github.com/hlamer/qutepart\">qutepart site</a><br/>" \
+            "See <a href=\"https://github.com/andreikop/qutepart\">qutepart site</a><br/>" \
             "Exception:<br/>" + \
             str(ex) + '<br/>' + \
             _SEE_SITE_HTML + \
             "</html>"
         plain = "Failed to import qutepart.\n" \
-                "See https://github.com/hlamer/qutepart\n" + \
+                "See https://github.com/andreikop/qutepart\n" + \
             str(ex) + '\n' + \
             _SEE_SITE_PLAIN
         _showErrorMessage(True, "Qutepart not found", html, plain)

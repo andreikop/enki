@@ -30,7 +30,7 @@ def _checkDependencies():
         ok = False
 
     if not ok:
-        print('See https://github.com/hlamer/enki/#installation')
+        print('See https://github.com/andreikop/enki/#installation')
 
     return ok
 
@@ -42,7 +42,7 @@ def _inVenv():
     return hasattr(sys, 'real_prefix') or getattr(sys, 'base_prefix', sys.prefix) != sys.prefix
 
 
-""" hlamer: We should use relative pathes here, without /usr/, so it will be installed to
+""" andreikop: We should use relative pathes here, without /usr/, so it will be installed to
 /usr/local/share with setup.py and to /usr/share with Debian packages.
 BUT KDE4 on Suse 12.02 ignores data in /usr/local/share, and, probably, some other systems do
 Therefore Enki always installs its .desktop and icons to /usr/share
@@ -118,9 +118,9 @@ if __name__ == '__main__':
           description='Simple programmer''s text editor',
           long_description=long_description,
           author='Andrei Kopats',
-          author_email='hlamer@tut.by',
+          author_email='andrei.kopats@gmail.com',
           url=PACKAGE_URL,
-          download_url='https://github.com/hlamer/enki/tags',
+          download_url='https://github.com/andreikop/enki/tags',
           packages=packages,
           package_dir=package_dir,
           package_data=package_data,

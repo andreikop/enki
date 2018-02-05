@@ -13,7 +13,7 @@ instruction show how to use them.
 
 Converting Enki to a self-contained executable bundle
 =====================================================
-- Obtain the latest sources from ``git clone https://github.com/hlamer/enki``.
+- Obtain the latest sources from ``git clone https://github.com/andreikop/enki``.
 - Install `Enki dependencies <../README.html#dependencies>`_.
 - Download `ctags <http://ctags.sourceforge.net/>`_ and unpack to ``enki/../ctags58``.
 - Install Python modules. ``pip install flake8 sphinx markdown``.

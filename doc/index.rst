@@ -7,8 +7,8 @@ This is API documentation. It lists all modules, which may be used by Enki plugi
 
 To create your own plugins, you will probably also need:
 
-* `Hacking guide <http://github.com/hlamer/enki/wiki/Hacking-guide>`_
-* `Plugin tutorial <https://github.com/hlamer/enki/wiki/Plugins-tutorial>`_
+* `Hacking guide <http://github.com/andreikop/enki/wiki/Hacking-guide>`_
+* `Plugin tutorial <https://github.com/andreikop/enki/wiki/Plugins-tutorial>`_
 * `Qutepart documentation <http://qutepart.rtfd.org>`_
 
 

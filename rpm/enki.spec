@@ -13,7 +13,7 @@ Group:          Productivity/Text/Editors
 License:        GPL-2.0
 URL:            http://enki-editor.org/
 
-Source0:        https://github.com/hlamer/%{name}/archive/v%{version}.tar.gz#/%{name}-%{version}.tar.gz
+Source0:        https://github.com/andreikop/%{name}/archive/v%{version}.tar.gz#/%{name}-%{version}.tar.gz
 
 BuildArch:      noarch
 
@@ -106,56 +106,56 @@ fi
 
 %changelog
 
-* Mon Mar 27 2017 Andrei Kopats <hlamer@tut.by> 17.03.0-18
+* Mon Mar 27 2017 Andrei Kopats <andrei.kopats@gmail.com> 17.03.0-18
  - Quit action
 
-* Wed Jun 15 2016 Andrei Kopats <hlamer@tut.by> 16.04.1-17
+* Wed Jun 15 2016 Andrei Kopats <andrei.kopats@gmail.com> 16.04.1-17
  - Show Qt version
  - Preview fixes
 
-* Fri Mar 25 2016 Andrei Kopats <hlamer@tut.by> 16.04.0-16
+* Fri Mar 25 2016 Andrei Kopats <andrei.kopats@gmail.com> 16.04.0-16
  - Migration to Python3 and Qt5
  - Show and prioritize open files in Locator
  - (Un)comment lines functionality
 
-* Mon Jan 11 2016 Andrei Kopats <hlamer@tut.by> 15.11.1-15
+* Mon Jan 11 2016 Andrei Kopats <andrei.kopats@gmail.com> 15.11.1-15
  - GUI fixes for Fedora
 
-* Mon Nov 30 2015 Andrei Kopats <hlamer@tut.by> 15.11.0-14
+* Mon Nov 30 2015 Andrei Kopats <andrei.kopats@gmail.com> 15.11.0-14
  - Fuzzy opener
  - Bug fixes and improvements
 
 * Mon Jul 27 2015 Bryan Jones <bjones AT ece.msstate.edu> 15.06.0-13
  - Literate programming and preview enhancements
 
-* Sat May 30 2015 Andrei Kopats <hlamer@tut.by> 15.05.0-12
+* Sat May 30 2015 Andrei Kopats <andrei.kopats@gmail.com> 15.05.0-12
  - Preview improvements
 
-* Mon Apr 27 2015 Andrei Kopats <hlamer@tut.by> 15.04.0-11
+* Mon Apr 27 2015 Andrei Kopats <andrei.kopats@gmail.com> 15.04.0-11
  - Vim mode
  - Literate programming and preview enhancements
  - Improvements and bugfixes
 
-* Mon Aug 18 2014 Andrei Kopats <hlamer@tut.by> 14.07.2-10
+* Mon Aug 18 2014 Andrei Kopats <andrei.kopats@gmail.com> 14.07.2-10
  - Fix pylint and navigator related bugs
 
-* Tue Jul 22 2014 Andrei Kopats <hlamer@tut.by> 14.07.0-9
+* Tue Jul 22 2014 Andrei Kopats <andrei.kopats@gmail.com> 14.07.0-9
  - Draw incorrect indentation
  - Source code to HTML conversion support (literate programming) by Bryan Jones
  - Pylint support
 
-* Thu Mar 13 2014 Andrei Kopats <hlamer@tut.by> 14.03.0-8
+* Thu Mar 13 2014 Andrei Kopats <andrei.kopats@gmail.com> 14.03.0-8
  - Open main menu with F10
  - Sort tags in the Navigator
  - Python REPL
  - Navigator tree filtering
  - Strip trailing whitespaces
 
-* Mon Nov 25 2013 Andrei Kopats <hlamer@tut.by> 13.11.1-7
+* Mon Nov 25 2013 Andrei Kopats <andrei.kopats@gmail.com> 13.11.1-7
 - Fix crash in Navigation
 - Recursively create directories on file save
 
-* Wed Nov 20 2013 Andrei Kopats <hlamer@tut.by> 13.11.0-6
+* Wed Nov 20 2013 Andrei Kopats <andrei.kopats@gmail.com> 13.11.0-6
 - RPM release for Suse
 - Navigation, based on ctags
 

@@ -65,7 +65,7 @@ class ProcessorThread(QThread):
     http://pep8.readthedocs.org/en/latest/intro.html#error-codes aren't syntax errors.
     So, mark most of these as warnings instead.
     Later in the code, E9 errors are actually marked as errors.
-    See https://github.com/hlamer/enki/issues/349.
+    See https://github.com/andreikop/enki/issues/349.
     """
     _MSG_ID_CONVERTOR = {  #
         'E': Qutepart.LINT_WARNING,
