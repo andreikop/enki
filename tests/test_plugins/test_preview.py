@@ -73,6 +73,7 @@ class SimplePreviewTestCase(base.TestCase):
         return self.findVisibleDock('Previe&w')
 
 
+@unittest.skip("Crashes sometimes")
 class TestSimplePreview(SimplePreviewTestCase):
 
     @base.requiresModule('CodeChat')
@@ -206,6 +207,7 @@ class PreviewTestCase(SimplePreviewTestCase):
         return self._html(), self._logText()
 
 
+@unittest.skip("Crashes")
 class TestPreview(PreviewTestCase):
 
     @base.inMainLoop

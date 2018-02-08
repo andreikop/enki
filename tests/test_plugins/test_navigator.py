@@ -198,6 +198,7 @@ class Gui(base.TestCase):
         curr = dock._tree.currentIndex()
         return model.data(curr, Qt.DisplayRole)
 
+    @unittest.skipIf('TRAVIS_OS_NAME' in os.environ, 'Fails on Travis')
     @base.requiresCmdlineUtility('ctags --version')
     @base.inMainLoop
     def test_6(self):

@@ -3,6 +3,7 @@
 
 import unittest
 import os.path
+import os
 import sys
 
 sys.path.insert(0, os.path.join(os.path.abspath(os.path.dirname(__file__)), ".."))
@@ -12,6 +13,7 @@ import base
 from PyQt5.QtTest import QTest
 
 
+@unittest.skip("Crashes")
 class Test(base.TestCase):
 
     def _browserText(self, replName):

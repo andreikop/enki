@@ -49,7 +49,7 @@ before_script:
 
 script:
   # Source virtualenv on OS X
-  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then source qutepart/terryfy/test_tools.sh; fi
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then source terryfy/test_tools.sh; fi
   # Set display on Linux
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then export DISPLAY=:99.0; fi
   - cd tests
