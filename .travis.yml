@@ -39,9 +39,9 @@ install:
   # It must be ``source``\ ed, so that the following commands run in the Python
   # virtual environment this creates.
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then source qutepart/tests/ci/osx_install.sh; fi
-  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then osx_install.sh; fi
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then tests/ci/osx_install.sh; fi
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then qutepart/tests/ci/linux_install.sh; fi
-  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then linux_install.sh; fi
+  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then tests/ci/linux_install.sh; fi
   - python -m pip install -e .
 
 before_script:
