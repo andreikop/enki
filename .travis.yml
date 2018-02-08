@@ -18,44 +18,42 @@ python:
 # manually includes additional OS X tests to the matrix of Linux tests defined
 # above.
 matrix:
-  include:
-  # Remove other OS X tests until the first one passes.
-  ##- os: osx
-  ##  # Since OS X doesn't natively support Python, use some workarounds (see
-  ##  # ``tests/qutepart_travis.py`` for details).
-  ##  language: generic
-  ##  # See https://docs.travis-ci.com/user/environment-variables/#Defining-Variables-in-.travis.yml.
-  ##  # Note that pyenv requres a full version specifier; selecting only 3.3
-  ##  # produces an error: ``python-build: definition not found: 3.3``.
-  ##  env: PYTHON=3.3.6
-  ## - os: osx
-  ##   language: generic
-  ##   env: PYTHON=3.4.4
-  ## - os: osx
-  ##   language: generic
-  ##   env: PYTHON=3.5.1
-
-  # See https://docs.travis-ci.com/user/customizing-the-build/#Rows-that-are-Allowed-to-Fail
   allow_failures:
+  # On linux tests crash on Travis. Probably a Qt bug. Investigation and fix is welcome
+  - os: linux
+  include:
+  - os: osx
+    # Since Travis's OS X doesn't natively support Python, use some workarounds.
+    language: generic
+    env: INSTALL_TYPE=macpython VERSION=3.5.2 VENV=venv
   - os: osx
     language: generic
-    env: PYTHON=3.3.6
+    env: INSTALL_TYPE=macpython VERSION=3.6.1 VENV=venv
 
 # Travis complains if tests are run during install, or if installation is done
 # during script (the tests). So, break the script into two pieces.
 install:
   # OS X setup depends on scripts in qutepart, so clone it first.
-  - git clone https://github.com/hlamer/qutepart.git
+  - git clone https://github.com/andreikop/qutepart.git
   # Install Python for OS X, since it's not provided by the Travis environment.
   # It must be ``source``\ ed, so that the following commands run in the Python
   # virtual environment this creates.
-  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then source qutepart/tests/ci/osx_python_install.sh; fi
-  # Install dependencies needed by the CI script.
-  - python -m pip install -U -r qutepart/tests/ci/requirements.txt
-  # Use a python script to do all the heavy lifting.
-  - python tests/ci.py install
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then source qutepart/tests/ci/osx_install.sh; fi
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then osx_install.sh; fi
+  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then qutepart/tests/ci/linux_install.sh; fi
+  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then linux_install.sh; fi
+  - python -m pip install -e .
 
-script: python tests/ci.py test
+before_script:
+  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then sh -e /etc/init.d/xvfb start; sleep 3; fi
+
+script:
+  # Source virtualenv on OS X
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then source qutepart/terryfy/test_tools.sh; fi
+  # Set display on Linux
+  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then export DISPLAY=:99.0; fi
+  - cd tests
+  - python ci.py test
 
 cache:
   directories:
