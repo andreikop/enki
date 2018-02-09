@@ -1,3 +1,6 @@
+[![Build Status](https://travis-ci.org/andreikop/enki.svg?branch=master)](https://travis-ci.org/andreikop/enki)
+
+
 # Enki: A text editor for programmers
 
 [Official site](http://enki-editor.org/)
