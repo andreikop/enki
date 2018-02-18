@@ -11,7 +11,7 @@ import base
 from PyQt5.QtTest import QTest
 
 
-@unittest.expectedFailure  # FIXME fix the test or the code
+@unittest.skipIf(sys.platform == 'darwin')  # FIXME fix the test or the code
 class Test(base.TestCase):
     CREATE_NOT_SAVED_DOCUMENT = False
 
@@ -93,6 +93,7 @@ class Test(base.TestCase):
 
         self._doc1.saveFile()
         self._sleepAndCheck(0, False, False, False, False)
+
 
 if __name__ == '__main__':
     unittest.main()
