@@ -4,6 +4,13 @@
 #
 # Otherwise, we get errors. See https://docs.travis-ci.com/user/ci-environment/#Virtualization-environments.
 sudo: required
+addons:
+  apt:
+    sources:
+      - sourceline: "deb http://us.archive.ubuntu.com/ubuntu/ xenial main universe"
+    packages:
+      - xvfb
+
 
 # See https://docs.travis-ci.com/user/multi-os/.
 os: linux
@@ -18,9 +25,6 @@ python:
 # manually includes additional OS X tests to the matrix of Linux tests defined
 # above.
 matrix:
-  allow_failures:
-  # On linux tests crash on Travis. Probably a Qt bug. Investigation and fix is welcome
-  - os: linux
   include:
   - os: osx
     # Since Travis's OS X doesn't natively support Python, use some workarounds.
