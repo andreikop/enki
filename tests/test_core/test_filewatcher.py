@@ -11,7 +11,7 @@ import base
 from PyQt5.QtTest import QTest
 
 
-@unittest.skipIf(sys.platform == 'darwin')  # FIXME fix the test or the code
+@unittest.skipIf(os.environ.get('TRAVIS_OS_NAME', None) == 'osx', "Fails on OSX")
 class Test(base.TestCase):
     CREATE_NOT_SAVED_DOCUMENT = False
 
