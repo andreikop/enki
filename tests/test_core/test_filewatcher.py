@@ -11,7 +11,7 @@ import base
 from PyQt5.QtTest import QTest
 
 
-@unittest.skipIf(os.environ.get('TRAVIS_OS_NAME', None) == 'osx', "Fails on OSX")
+@unittest.skipIf(os.environ.get('TRAVIS_OS_NAME', None) == 'osx', "Fails on OSX. TODO Check why??????")
 class Test(base.TestCase):
     CREATE_NOT_SAVED_DOCUMENT = False
 
