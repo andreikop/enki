@@ -149,18 +149,18 @@ def _getSphinxVersion(path):
           ValueError if failed to parse.
     """
     stdout, stderr = get_console_output([path, "--version"])
-    # Command "Sphinx-build --version" will only output sphinx version info.
-    # Typical output looks like: ``Sphinx (sphinx-build) 1.2.3`` or
-    # ``Sphinx v1.2.3``
-    # But the problem is sometimes version info goes to stdout(version 1.2.3),
-    # while sometimes it goes to stderr(version 1.1.3). Thus combining stdout
-    # and stderr is necessary.
+    # The command "sphinx-build --version" will only output sphinx version info. Typical output looks like:
+    #
+    # - ``Sphinx (sphinx-build) 1.2.3``
+    # - ``Sphinx v1.2.3``
+    # - ``sphinx-build 1.7.0``.
+    #
+    # Sometimes version info goes to stdout (version 1.2.3), while sometimes it goes to stderr (version 1.1.3). Thus combining stdout and stderr is necessary.
     out = stdout + '\n' + stderr
     for line in out.split('\n'):
-        if line.startswith("Sphinx"):
+        if line.lower().startswith("sphinx"):
             # Split on space, take the last segment, if it starts with character
-            # 'v', strip the 'v'. Then split on dot. returning the version as a
-            # tuple.
+            # 'v', strip the 'v'. Then split on a period, returning the version as a tuple.
             version = line.split(' ')[-1]
             version = version[1:] if version.startswith('v') else version
             return [int(num) for num in version.split('.')]
