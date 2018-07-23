@@ -20,6 +20,7 @@ Mandatory:
 
 Optional:
 
+* [PyQt5 QtWebEngine bindings]. `python3-pyqt5.qtwebengine` or `python3-qt5-webengine` package.
 * [Python-Markdown](http://packages.python.org/Markdown/install.html). For Markdown preview
 * [python-docutils](http://docutils.sourceforge.net/). For reStructuredText preview
 * [ctags](http://ctags.sourceforge.net/). For navigation in file
