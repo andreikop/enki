@@ -97,7 +97,7 @@ def _convertMarkdown(text):
     try:
         import markdown
     except ImportError:
-        return 'Markdown preview requires <i>python-markdown</i> package<br/>' \
+        return 'Markdown preview requires <i>python3-markdown</i> package<br/>' \
                'Install it with your package manager or see ' \
                '<a href="http://packages.python.org/Markdown/install.html">installation instructions</a>'
 
