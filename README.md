@@ -17,12 +17,13 @@ Mandatory:
 * [Python 3](http://python.org/download)
 * [PyQt5](http://www.riverbankcomputing.co.uk/software/pyqt/download). With SVG support.
 * [Qutepart](https://github.com/andreikop/qutepart)
+* [Qt Console](https://github.com/jupyter/qtconsole)
+* [PyQt5 QtWebEngine bindings]. `python3-pyqt5.qtwebengine` or `python3-qt5-webengine` package.
 
 Optional:
 
-* [PyQt5 QtWebEngine bindings]. `python3-pyqt5.qtwebengine` or `python3-qt5-webengine` package.
-* [Python-Markdown](http://packages.python.org/Markdown/install.html). For Markdown preview
-* [python-docutils](http://docutils.sourceforge.net/). For reStructuredText preview
+* [Python-Markdown](https://github.com/Python-Markdown/markdown). For Markdown preview
+* [Docutils](http://docutils.sourceforge.net/). For reStructuredText preview
 * [ctags](http://ctags.sourceforge.net/). For navigation in file
 * [regex](https://pypi.python.org/pypi/regex). For preview synchronization
 * [CodeChat](https://bitbucket.org/bjones/documentation/overview). For source code to HTML translation (literate programming)
