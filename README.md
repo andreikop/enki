@@ -62,6 +62,19 @@ Don't forget to send a bug report if you are having some problems
 ## Running from the source tree
     python3 bin/enki
 
+
+## Releasing new version
+```
+    make bump-version  # Set next version number. Commit the changes
+    make changelog-update  # Edit and commit 3 changelog files
+    git tag vx.x.x
+    git push
+    git push --tags
+    make push-obs  # upload the version to Open Suse build service
+    # make pip release TODO document this step
+```
+
+
 ## License
 [GPL v2](LICENSE.GPL2.html)
 
