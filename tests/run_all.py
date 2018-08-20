@@ -4,7 +4,6 @@ import sys
 
 # Import just to check that dependencies are installed
 import markdown  # noqa: F401
-import docutils  # noqa: F401
 import regex     # noqa: F401
 
 if __name__ == "__main__":
