@@ -138,7 +138,7 @@ if __name__ == '__main__':
           ],
           extras_require={
               'CodeChat':  ["CodeChat"],
-              'Preview Syncronization':  ["regex==2016.10.22"],
+              'Preview Synchronization':  ["regex==2016.10.22"],
               'Python Linting': ["flake8"],
               'Build Sphinx documentation': ['Sphinx'],
               'Python REPL': ['qtconsole'],
