@@ -5,7 +5,7 @@
 %global icon_cache_gtk_update /usr/bin/gtk-update-icon-cache %{_datadir}/icons/hicolor &>/dev/null || :
 
 Name:           enki
-Version:        17.03.3
+Version:        18.08.0
 Release:        5%{?dist}
 Summary:        Advanced text editor for programmers
 Group:          Productivity/Text/Editors
@@ -107,6 +107,9 @@ fi
 
 
 %changelog
+
+* Mon Aug 27 2018 Andrei Kopats <andrei.kopats@gmail.com> 18.08.0-19
+ - Package manager
 
 * Mon Mar 27 2017 Andrei Kopats <andrei.kopats@gmail.com> 17.03.0-18
  - Quit action

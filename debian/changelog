@@ -1,3 +1,9 @@
+enki (18.8.0-1~ubuntuseries1) ubuntuseries; urgency=medium
+
+  * Package manager
+
+ -- Andrei Kopats <andrei.kopats@gmail.com>  Mon, 27 Aug 2018 22:05:19 +0300
+
 enki (17.3.3-1~ubuntuseries1) ubuntuseries; urgency=medium
 
   * Debian build fixes
