@@ -369,7 +369,7 @@ class NoWebkitDock(DockWidget):
     def __init__(self):
         DockWidget.__init__(self, core.mainWindow(), "Previe&w", QIcon(':/enkiicons/internet.png'), "Alt+W")
         self._widget = QLabel("Qt5 WebEngine not found. Preview is not available.<br/>"
-                              "Run <tt>pip install PyQt5</tt>.")
+                              "Run <tt>apt install  python3-pyqt5.qtwebengine</tt>.")
         self.setFocusProxy(self._widget)
         self.setWidget(self._widget)
 
