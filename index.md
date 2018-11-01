@@ -41,7 +41,7 @@ baseurl: .
                 Source<br/>package
             </a>
 
-            <a href="http://software.opensuse.org/download.html?project=home%3Aandreikop%3Aenki&amp;package=enki" class="download-button">
+            <a href="http://software.opensuse.org/download.html?project=home%3Ahlamer%3Aenki&amp;package=enki" class="download-button">
                 <table valign="center">
                     <tr>
                         <td>
