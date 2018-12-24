@@ -61,7 +61,7 @@ Don't forget to send a bug report if you are having some problems
 
 ## Running from the source tree
 
-    python3 enki
+    python3 -m enki
 
 
 ## Releasing new version
