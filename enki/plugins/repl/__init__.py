@@ -26,6 +26,7 @@ class _AbstractReplPlugin(QObject):
         self._installed = False
         self._evalAction = None
         self._activeInterpreterPath = None
+        self._interpreter = None
         self._dock = None
 
         # TODO handle situation, when lexer changed for current document
@@ -33,6 +34,7 @@ class _AbstractReplPlugin(QObject):
         core.workspace().currentDocumentChanged.connect(self._updateEvalActionEnabledState)
         core.workspace().languageChanged.connect(self._installOrUninstallIfNecessary)
         core.workspace().languageChanged.connect(self._updateEvalActionEnabledState)
+        core.uiSettingsManager().dialogAccepted.connect(self._applySettings)
         core.uiSettingsManager().aboutToExecute.connect(self._onSettingsDialogAboutToExecute)
 
         self._installOrUninstallIfNecessary()
@@ -43,10 +45,8 @@ class _AbstractReplPlugin(QObject):
         core.workspace().currentDocumentChanged.disconnect(self._updateEvalActionEnabledState)
         core.workspace().languageChanged.disconnect(self._installOrUninstallIfNecessary)
         core.workspace().languageChanged.disconnect(self._updateEvalActionEnabledState)
+        core.uiSettingsManager().dialogAccepted.disconnect(self._applySettings)
         core.uiSettingsManager().aboutToExecute.disconnect(self._onSettingsDialogAboutToExecute)
-        if self._dock:
-            # See https://jupyter-client.readthedocs.io/en/stable/api/manager.html#jupyter_client.KernelManager.shutdown_kernel.
-            self._dock.ipython_widget.kernel_manager.shutdown_kernel()
 
     def _icon(self):
         """Settings widget icon
@@ -63,6 +63,16 @@ class _AbstractReplPlugin(QObject):
         """
         return document is not None and \
             document.qutepart.language() == self._LANGUAGE
+
+    def _applySettings(self):
+        """Apply settings. Called by configurator class
+        """
+        # if path has been changed - restart the interpreter
+        if self._installed and \
+           self._activeInterpreterPath != self._settingsGroup()["InterpreterPath"]:
+            self.uninstall()
+
+        self._installOrUninstallIfNecessary()
 
     def _updateEvalActionEnabledState(self):
         """Update action enabled state
@@ -106,21 +116,19 @@ class _AbstractReplPlugin(QObject):
 
         selection = document.qutepart.selectedText
         if selection:
-            # See https://jupyter-client.readthedocs.io/en/stable/api/client.html#jupyter_client.KernelClient.execute. But actually, no -- this is somewhere in the qt console source, https://github.com/jupyter/qtconsole/blob/master/qtconsole/frontend_widget.py#L289 ???
-            self._dock.ipython_widget.execute(selection)
+            self._interpreter.execCommand(selection)
             self._dock.show()
         else:
             if document.qutepart.document().isModified():
                 document.saveFile()
             if document.filePath():  # user may cancel saving document
-                self._dock.ipython_widget.execute('run "{}"'.format(document.filePath()))
+                self._interpreter.loadFile(document.filePath())
                 self._dock.show()
 
     def _onBreakTriggered(self):
-        """Break has been triggered. Stop the interpreter.
+        """Break has been triggered. Stop the interpreter
         """
-        # See https://jupyter-client.readthedocs.io/en/stable/api/manager.html#jupyter_client.KernelManager.interrupt_kernel.
-        self._dock.ipython_widget.interrupt_kernel()
+        self._interpreter.stop()
 
     def _onSettingsDialogAboutToExecute(self, dialog):
         """UI settings dialogue is about to execute.
@@ -155,11 +163,19 @@ class _AbstractReplPlugin(QObject):
         self._breakAction.setStatusTip("Use it as a restart action.")
         self._breakAction.setShortcut("Pause")
         self._breakAction.triggered.connect(self._onBreakTriggered)
-        #self._breakAction.setEnabled(False)
+        self._breakAction.setEnabled(False)
+
+        self._activeInterpreterPath = self._settingsGroup()["InterpreterPath"]
+
+        if self._interpreter is None:
+            self._interpreter = self._createInterpreter()
+            self._interpreter.processIsRunningChanged.connect(lambda isRunning: self._breakAction.setEnabled(isRunning))
 
         if self._dock is None:
             from .repl import ReplDock
-            self._dock = ReplDock(self._DOCK_TITLE, self._icon())
+            self._dock = ReplDock(self._interpreter.widget(),
+                                  self._DOCK_TITLE,
+                                  self._icon())
 
         core.actionManager().addAction("mView/a%s" % self._LANGUAGE, self._dock.showAction())
         core.mainWindow().addDockWidget(Qt.BottomDockWidgetArea, self._dock)
@@ -171,6 +187,7 @@ class _AbstractReplPlugin(QObject):
         """
         if not self._installed:
             return
+        self._interpreter.stop()
         core.actionManager().removeAction(self._evalAction)
         self._evalAction = None
         core.actionManager().removeAction(self._breakAction)
@@ -181,6 +198,7 @@ class _AbstractReplPlugin(QObject):
         core.mainWindow().removeDockWidget(self._dock)
 
         self._installed = False
+
 
 class _SchemeReplPlugin(_AbstractReplPlugin):
     """Scheme REPL plugin
@@ -197,6 +215,11 @@ class _SchemeReplPlugin(_AbstractReplPlugin):
         """
         return QIcon(':/enkiicons/languages/scheme.png')
 
+    def _createInterpreter(self):
+        """Create interpreter instance
+        """
+        from .repl import MitSchemeInterpreter
+        return MitSchemeInterpreter(self._LANGUAGE, self._FULL_NAME, self._activeInterpreterPath)
 
 
 class _SmlReplPlugin(_AbstractReplPlugin):
@@ -215,6 +238,11 @@ class _SmlReplPlugin(_AbstractReplPlugin):
 
         _AbstractReplPlugin.__init__(self)
 
+    def _createInterpreter(self):
+        """Create interpreter instance
+        """
+        from .repl import SmlInterpreter
+        return SmlInterpreter(self._LANGUAGE, self._FULL_NAME, self._activeInterpreterPath)
 
 
 class _PythonReplPlugin(_AbstractReplPlugin):
@@ -235,6 +263,11 @@ class _PythonReplPlugin(_AbstractReplPlugin):
 
         _AbstractReplPlugin.__init__(self)
 
+    def _createInterpreter(self):
+        """Create interpreter instance
+        """
+        from .repl import PythonInterpreter
+        return PythonInterpreter(self._LANGUAGE, self._FULL_NAME, self._activeInterpreterPath)
 
 
 class Plugin:
@@ -242,11 +275,11 @@ class Plugin:
     """
 
     def __init__(self):
-#        self._schemeSubPlugin = _SchemeReplPlugin()
-#        self._smlSubPlugin = _SmlReplPlugin()
+        self._schemeSubPlugin = _SchemeReplPlugin()
+        self._smlSubPlugin = _SmlReplPlugin()
         self._pythonSubPlugin = _PythonReplPlugin()
 
     def terminate(self):
-#        self._schemeSubPlugin.terminate()
-#        self._smlSubPlugin.terminate()
+        self._schemeSubPlugin.terminate()
+        self._smlSubPlugin.terminate()
         self._pythonSubPlugin.terminate()
