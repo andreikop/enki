@@ -259,7 +259,7 @@ class _PythonReplPlugin(_AbstractReplPlugin):
         # if config file is old, add own settings
         if 'Python' not in core.config()['Modes']:
             core.config()['Modes']['Python'] = {'Enabled': 'whenOpened',
-                                                'InterpreterPath': 'python -i'}
+                                                'InterpreterPath': 'python3 -i -u'}
 
         _AbstractReplPlugin.__init__(self)
 
