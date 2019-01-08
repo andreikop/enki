@@ -40,7 +40,7 @@ class PluginsPage(QWidget):
         self._vbox.addWidget(QLabel(
             """<h2>Installed Plugins: <code>%i</code></h2>
             <p>Add plugins by putting them into <code>%s</code></p>
-            <p><\p>""" % (len(userPlugins), PLUGIN_DIR_PATH)))
+            <p></p>""" % (len(userPlugins), PLUGIN_DIR_PATH)))
         for entry in userPlugins:
             self._vbox.addWidget(PluginTitlecard(entry))
 
