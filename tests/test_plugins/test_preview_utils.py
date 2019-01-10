@@ -153,7 +153,7 @@ class Test(base.TestCase):
         """Check that _getSphinxVersion complies to sphinx version 1.1.3"""
         mock_gca.return_value = ("stderr",
                                  """Sphinx v1.1.3
-Usage: C:\Python27\Scripts\sphinx-build [options] sourcedir outdir [filenames...
+Usage: C:\\Python27\\Scripts\\sphinx-build [options] sourcedir outdir [filenames...
 ]
 """)
         self.assertEqual(_getSphinxVersion('anything_since_replaced_by_mock'),

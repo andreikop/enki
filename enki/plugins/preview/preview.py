@@ -1060,14 +1060,14 @@ class PreviewDock(DockWidget):
             # Examining this expression one element at a time::
             #
             #   <string>:1589:        (ERROR/3)Unknown interpreted text role "ref".
-            errPosRe = ':(\d*|None|):? '
+            errPosRe = r':(\d*|None|):? '
             # Find the first occurence of a pair of colons, or just a single colon.
             # Between them there can be numbers or "None" or nothing. For example,
             # this expression matches the string ":1589:" or string ":None:" or
             # string "::" or the string ":". Next::
             #
             #   <string>:1589:        (ERROR/3)Unknown interpreted text role "ref".
-            errTypeRe = '\(?(WARNING|ERROR|SEVERE)'
+            errTypeRe = r'\(?(WARNING|ERROR|SEVERE)'
             # Next match the error type, which can
             # only be "WARNING", "ERROR" or "SEVERE". Before this error type the
             # message may optionally contain one left parenthesis.

@@ -24,7 +24,7 @@ class ProcessorThread(QThread):
 
     _Task = collections.namedtuple("Task", ["document", "language", "filePath"])
 
-    _PARSER_REG_EXP = re.compile('^(.+):(\d+):(\d+): ([A-Z]\d\d\d .+)$')
+    _PARSER_REG_EXP = re.compile(r'^(.+):(\d+):(\d+): ([A-Z]\d\d\d .+)$')
 
     def __init__(self):
         QThread.__init__(self)
