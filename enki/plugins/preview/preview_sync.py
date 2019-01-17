@@ -31,7 +31,9 @@ from enki.lib.future import RunLatest
 # If regex isn't installed or is too old, this import will fail. In this case,
 # disable the sync feature.
 try:
-    from .approx_match import findApproxTextInTarget
+    pass
+    # Approx matching is disabled because of issue #460
+    # from .approx_match import findApproxTextInTarget
 except ImportError as e:
     findApproxTextInTarget = None
 #
