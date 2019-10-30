@@ -25,7 +25,6 @@ Requires:       python3-qutepart >= 3.0
 Requires:       python3-docutils
 Requires:       python3-qt5
 Requires:       python3-sphinx
-Requires:       python3-qtconsole
 Requires:       python3-qt5-webengine
 Requires:       ctags
 

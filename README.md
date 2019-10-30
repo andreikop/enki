@@ -17,7 +17,6 @@ Mandatory:
 * [Python 3](http://python.org/download)
 * [PyQt5](http://www.riverbankcomputing.co.uk/software/pyqt/download). With SVG support.
 * [Qutepart](https://github.com/andreikop/qutepart)
-* [Qt Console](https://github.com/jupyter/qtconsole)
 * [PyQt5 QtWebEngine bindings]. `python3-pyqt5.qtwebengine` or `python3-qt5-webengine` package.
 
 Optional:
@@ -33,7 +32,7 @@ Optional:
 #### Debian and Debian based
 
 ```
-   apt-get install python3 libqt5svg5 python3-pyqt5 python3-pyqt5.qtwebengine python3-qtconsole python3-markdown python3-docutils ctags
+   apt-get install python3 libqt5svg5 python3-pyqt5 python3-pyqt5.qtwebengine python3-markdown python3-docutils ctags
    pip3 install -r requirements.txt
 
 ```

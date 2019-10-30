@@ -11,7 +11,7 @@ Vcs-Browser: https://github.com/andreikop/enki
 
 Package: enki
 Architecture: all
-Depends: ${misc:Depends}, ${python3:Depends}, libqt5svg5, python3-pyqt5, python3-pyqt5.qtwebengine, python3-qutepart (>= 3.0), python3-qtconsole
+Depends: ${misc:Depends}, ${python3:Depends}, libqt5svg5, python3-pyqt5, python3-pyqt5.qtwebengine, python3-qutepart (>= 3.0)
 Suggests: mit-scheme, python3-markdown, python3-docutils, python3-regex, ctags
 Description: A text editor for programmers
  Some of the features:
