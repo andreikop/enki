@@ -5,7 +5,7 @@
 %global icon_cache_gtk_update /usr/bin/gtk-update-icon-cache %{_datadir}/icons/hicolor &>/dev/null || :
 
 Name:           enki
-Version:        18.08.0
+Version:        19.10.0
 Release:        5%{?dist}
 Summary:        Advanced text editor for programmers
 Group:          Productivity/Text/Editors
