@@ -5,7 +5,7 @@
 %global icon_cache_gtk_update /usr/bin/gtk-update-icon-cache %{_datadir}/icons/hicolor &>/dev/null || :
 
 Name:           enki
-Version:        19.10.0
+Version:        20.03.1
 Release:        5%{?dist}
 Summary:        Advanced text editor for programmers
 Group:          Productivity/Text/Editors
@@ -106,6 +106,10 @@ fi
 
 
 %changelog
+
+* Fri Mar 27 2020 Andrei Kopats <andrei.kopats@gmail.com> 20.03.1-20
+ - Temporary remove package manager
+ - Remove qtconsole dependency
 
 * Mon Aug 27 2018 Andrei Kopats <andrei.kopats@gmail.com> 18.08.0-19
  - Package manager

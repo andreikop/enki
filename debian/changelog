@@ -1,3 +1,10 @@
+enki (20.3.1-1~ubuntuseries1) ubuntuseries; urgency=medium
+
+  * Remove qtconsole dependency
+  * Temporary disable plugin manager
+
+ -- Andrei Kopats <andrei.kopats@gmail.com>  Sat, 28 Mar 2020 00:05:16 +0300
+
 enki (18.8.0-1~ubuntuseries1) ubuntuseries; urgency=medium
 
   * Package manager
