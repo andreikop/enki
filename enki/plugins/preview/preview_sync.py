@@ -34,6 +34,7 @@ try:
     pass
     # Approx matching is disabled because of issue #460
     # from .approx_match import findApproxTextInTarget
+    findApproxTextInTarget = None
 except ImportError as e:
     findApproxTextInTarget = None
 #
