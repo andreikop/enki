@@ -43,7 +43,7 @@ class _TitleBar(QToolBar):
         self.aClose.triggered.connect(self._dock.close)
 
         textHeight = QFontMetrics(self.font()).height()
-        self.setIconSize(QSize(textHeight * 0.8, textHeight * 0.8))
+        self.setIconSize(QSize(int(textHeight * 0.8), int(textHeight * 0.8)))
 
         # a fake spacer widget
         self._spacer = QWidget(self)
