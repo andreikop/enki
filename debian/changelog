@@ -1,3 +1,9 @@
+enki (21.11.0-1~ubuntuseries1) ubuntuseries; urgency=medium
+
+  * Fix compatibility with Python 3.10
+
+ -- Andrei Kopats <andrei.kopats@gmail.com>  Mon, 15 Nov 2021 09:57:32 +0300
+
 enki (20.3.1-1~ubuntuseries1) ubuntuseries; urgency=medium
 
   * Remove qtconsole dependency
