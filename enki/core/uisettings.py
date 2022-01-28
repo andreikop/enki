@@ -312,7 +312,7 @@ class UISettings(QDialog):
 
         # resize to minimum size
         hint = self.sizeHint()
-        self.resize(max(hint.width(), hint.height() * 1.61), hint.height())
+        self.resize(int(max(hint.width(), hint.height() * 1.61)), int(hint.height()))
 
     def _itemByPath(self, pathParts):
         """Find item by it's path. Path is list of parts. I.e. ['Editor', 'Ignored files']
