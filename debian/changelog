@@ -1,3 +1,9 @@
+enki (22.8.0-1~ubuntuseries1) ubuntuseries; urgency=medium
+
+  * Fix one more crash on Python 3.10
+
+ -- Andrei Kopats <andrei.kopats@gmail.com>  Wed, 10 Aug 2022 14:40:15 +0300
+
 enki (21.11.0-1~ubuntuseries1) ubuntuseries; urgency=medium
 
   * Fix compatibility with Python 3.10

@@ -5,7 +5,7 @@
 %global icon_cache_gtk_update /usr/bin/gtk-update-icon-cache %{_datadir}/icons/hicolor &>/dev/null || :
 
 Name:           enki
-Version:        21.11.0
+Version:        22.08.0
 Release:        5%{?dist}
 Summary:        Advanced text editor for programmers
 Group:          Productivity/Text/Editors
@@ -106,6 +106,9 @@ fi
 
 
 %changelog
+
+* Wed Aug 8 2022 Andrei Kopats <andrei.kopats@gmail.com> 22.08.0-22
+ - Fix compatibility with Python 3.10
 
 * Mon Nov 15 2021 Andrei Kopats <andrei.kopats@gmail.com> 21.12.0-21
  - Fix compatibility with Python 3.10

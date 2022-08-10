@@ -4,7 +4,7 @@ AUTHOR_EMAIL=$(shell ./setup.py --author-email)
 PACKAGE_NAME=$(shell ./setup.py --name)
 ARCHIVE=$(PACKAGE_NAME)-$(VERSION).tar.gz
 
-ENV=DEBFULLNAME="$(AUTHOR)" DEBEMAIL=$(AUTHOR_EMAIL) EDITOR=enki
+ENV=DEBFULLNAME="$(AUTHOR)" DEBEMAIL=$(AUTHOR_EMAIL) EDITOR=nvim
 
 DEBIGAN_ORIG_ARCHIVE=${PACKAGE_NAME}_${VERSION}.orig.tar.gz
 
@@ -22,15 +22,15 @@ all install:
 
 
 bump-version:
-	enki enki/core/defines.py +9
-	enki rpm/enki.spec +8
-	enki win/Enki.iss +11
+	nvim enki/core/defines.py +9
+	nvim rpm/enki.spec +8
+	nvim win/Enki.iss +11
 
 
 changelog-update:
 	cd debian && \
 		$(ENV) dch -v $(VERSION)-1~ubuntuseries1 -b --distribution ubuntuseries
-	enki rpm/enki.spec +105
+	nvim rpm/enki.spec +105
 
 
 dist/${ARCHIVE}:
