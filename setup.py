@@ -135,6 +135,7 @@ if __name__ == '__main__':
           install_requires=[
               'qutepart',
               'Markdown',
+              'setuptools',
           ],
           extras_require={
               'CodeChat':  ["CodeChat"],
