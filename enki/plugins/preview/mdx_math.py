@@ -22,7 +22,7 @@ class MathExtension(markdown.extensions.Extension):
         }
         super(MathExtension, self).__init__(*args, **kwargs)
 
-    def extendMarkdown(self, md, md_globals):
+    def extendMarkdown(self, md):
         def handle_match_inline(m):
             node = markdown.util.etree.Element('script')
             node.set('type', 'math/tex')
@@ -51,10 +51,10 @@ class MathExtension(markdown.extensions.Extension):
             inlinemathpatterns = inlinemathpatterns[1:]
         for i, pattern in enumerate(inlinemathpatterns):
             pattern.handleMatch = handle_match_inline
-            md.inlinePatterns.add('math-inline-%d' % i, pattern, '<escape')
+            md.inlinePatterns.register(pattern, 'math-inline-%d' % i, 100)
         for i, pattern in enumerate(mathpatterns):
             pattern.handleMatch = handle_match
-            md.inlinePatterns.add('math-%d' % i, pattern, '<escape')
+            md.inlinePatterns.register(pattern, 'math-%d' % i, 100)
 
 
 def makeExtension(*args, **kwargs):

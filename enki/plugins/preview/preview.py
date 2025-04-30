@@ -96,6 +96,7 @@ def _convertMarkdown(text):
     """
     try:
         import markdown
+        from markdown.inlinepatterns import Pattern
     except ImportError:
         return 'Markdown preview requires <i>python3-markdown</i> package<br/>' \
                'Install it with your package manager or see ' \
@@ -104,24 +105,34 @@ def _convertMarkdown(text):
     extensions = ['fenced_code', 'nl2br', 'tables', 'enki.plugins.preview.mdx_math']
 
     # version 2.0 supports only extension names, not instances
-    if markdown.version_info[0] > 2 or \
-       (markdown.version_info[0] == 2 and markdown.version_info[1] > 0):
+    # version 3.0 moves version_info to __version_info__
+    markdown_version = markdown.version_info[0] if "version_info" in dir(markdown) \
+    else markdown.__version_info__[0]
+    if markdown_version > 2 or \
+       (markdown_version == 2 and markdown.version_info[1] > 0):
 
         class _StrikeThroughExtension(markdown.Extension):
             """http://achinghead.com/python-markdown-adding-insert-delete.html
             Class is placed here, because depends on imported markdown, and markdown import is lazy
             """
             DEL_RE = r'(~~)(.*?)~~'
-
-            def extendMarkdown(self, md, md_globals):
-                # Create the del pattern
-                delTag = markdown.inlinepatterns.SimpleTagPattern(self.DEL_RE, 'del')
-                # Insert del pattern into markdown parser
-                md.inlinePatterns.add('del', delTag, '>not_strong')
+            if markdown_version == 2:
+                def extendMarkdown(self, md, md_globals):
+                    # Create the del pattern
+                    delTag = markdown.inlinepatterns.\
+                    SimpleTagPattern(self.DEL_RE, 'del')
+                    # Insert del pattern into markdown parser
+                    md.inlinePatterns.add('del', delTag, '>not_strong')
+            else:
+                def extendMarkdown(self, md):
+                    # Create the del pattern
+                    del_pattern = Pattern(self.DEL_RE, 'del')
+                    # Insert del pattern into markdown parser
+                    md.inlinePatterns.register(del_pattern, 'del', 123)
 
         extensions.append(_StrikeThroughExtension())
 
-    return markdown.markdown(text, extensions)
+    return markdown.markdown(text=text, extensions=extensions)
 
 
 def _convertReST(text):
