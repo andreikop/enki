@@ -116,14 +116,13 @@ def _convertMarkdown(text):
             """
             DEL_RE = r'(~~)(.*?)~~'
 
-            if markdown_version == 2:
-                def extendMarkdown(self, md, md_globals):
+            def extendMarkdown(self, md, md_globals):
+                if markdown_version == 2:
                     # Create the del pattern
                     delTag = markdown.inlinepatterns.SimpleTagPattern(self.DEL_RE, 'del')
                     # Insert del pattern into markdown parser
                     md.inlinePatterns.add('del', delTag, '>not_strong')
-            else:
-                def extendMarkdown(self, md, md_globals):
+                else:
                      # Create the del pattern
                      del_pattern = Pattern(self.DEL_RE, 'del')
                      # Insert del pattern into markdown parser
