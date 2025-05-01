@@ -22,7 +22,7 @@ class MathExtension(markdown.extensions.Extension):
         }
         super(MathExtension, self).__init__(*args, **kwargs)
 
-    def extendMarkdown(self, md, md_globals):
+    def extendMarkdown(self, md, md_globals=[]):
         def handle_match_inline(m):
             node = markdown.util.etree.Element('script')
             node.set('type', 'math/tex')
@@ -49,12 +49,28 @@ class MathExtension(markdown.extensions.Extension):
         )
         if not self.getConfig('enable_dollar_delimiter'):
             inlinemathpatterns = inlinemathpatterns[1:]
-        for i, pattern in enumerate(inlinemathpatterns):
-            pattern.handleMatch = handle_match_inline
-            md.inlinePatterns.add('math-inline-%d' % i, pattern, '<escape')
-        for i, pattern in enumerate(mathpatterns):
-            pattern.handleMatch = handle_match
-            md.inlinePatterns.add('math-%d' % i, pattern, '<escape')
+
+        # version 3.0 moves version_info to __version_info__
+        markdown_version = markdown.version_info[0]\
+            if "version_info" in dir(markdown) \
+            else markdown.__version_info__[0]
+
+        if markdown_version == 2:
+            for i, pattern in enumerate(inlinemathpatterns):
+                pattern.handleMatch = handle_match_inline
+                md.inlinePatterns.add('math-inline-%d' % i, pattern, '<escape')
+            for i, pattern in enumerate(mathpatterns):
+                pattern.handleMatch = handle_match
+                md.inlinePatterns.add('math-%d' % i, pattern, '<escape')
+        else:
+            for i, pattern in enumerate(inlinemathpatterns):
+                pattern.handleMatch = handle_match_inline
+                md.inlinePatterns.register(pattern, 'math-inline-%d' % i, 100)
+
+            for i, pattern in enumerate(mathpatterns):
+                pattern.handleMatch = handle_match
+                md.inlinePatterns.register(pattern, 'math-%d' % i, 100)
+
 
 
 def makeExtension(*args, **kwargs):
