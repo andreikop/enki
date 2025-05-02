@@ -104,8 +104,12 @@ def _convertMarkdown(text):
     extensions = ['fenced_code', 'nl2br', 'tables', 'enki.plugins.preview.mdx_math']
 
     # version 2.0 supports only extension names, not instances
-    if markdown.version_info[0] > 2 or \
-       (markdown.version_info[0] == 2 and markdown.version_info[1] > 0):
+    # version 3.0 moves version_info to __version_info__
+    markdown_version = markdown.version_info[0]\
+        if "version_info" in dir(markdown) \
+        else markdown.__version_info__[0]
+
+    if markdown_version == 2 and markdown.version_info[1] > 0:
 
         class _StrikeThroughExtension(markdown.Extension):
             """http://achinghead.com/python-markdown-adding-insert-delete.html
@@ -113,15 +117,26 @@ def _convertMarkdown(text):
             """
             DEL_RE = r'(~~)(.*?)~~'
 
-            def extendMarkdown(self, md, md_globals):
+            def extendMarkdown(self, md):
                 # Create the del pattern
                 delTag = markdown.inlinepatterns.SimpleTagPattern(self.DEL_RE, 'del')
                 # Insert del pattern into markdown parser
-                md.inlinePatterns.add('del', delTag, '>not_strong')
+                markdown.inlinepatterns.add('del', delTag, '>not_strong')
+    elif markdown_version == 3:
+        class _StrikeThroughExtension(markdown.Extension):
+            """A Markdown extension to add strikethrough support using the <del> tag."""
+            DEL_RE = r'(~~)(.*?)~~'  # Simplified regex pattern
+
+            def extendMarkdown(self, md):
+                STRIKETHROUGH_PATTERN = r"(~~)(.*?)~~"
+                md.inlinePatterns.register(markdown.inlinepatterns.SimpleTagInlineProcessor(STRIKETHROUGH_PATTERN, 'del'), 'strikethrough', 175)
+
+        def strikethrough(text):
+            return markdown.markdown(text, extensions=[_StrikethroughExtension()])
 
         extensions.append(_StrikeThroughExtension())
 
-    return markdown.markdown(text, extensions)
+    return markdown.markdown(text, extensions=extensions)
 
 
 def _convertReST(text):
